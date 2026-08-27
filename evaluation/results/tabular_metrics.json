@@ -1,0 +1,26 @@
+{
+  "train": {
+    "split": "TRAIN",
+    "pr_auc": 0.6891457784543146,
+    "roc_auc": 0.9474807518115943,
+    "best_f1": 0.6355932153404195,
+    "best_f1_threshold": 0.715698530091371,
+    "best_f1_precision": 0.646551724137931,
+    "best_f1_recall": 0.625,
+    "n_samples": 6000,
+    "n_positive": 480,
+    "fraud_rate": 0.08
+  },
+  "validation": {
+    "split": "VALIDATION",
+    "pr_auc": 0.48725300020071616,
+    "roc_auc": 0.8275951086956522,
+    "best_f1": 0.47138046641045706,
+    "best_f1_threshold": 0.7116271020542225,
+    "best_f1_precision": 0.5109489051094891,
+    "best_f1_recall": 0.4375,
+    "n_samples": 2000,
+    "n_positive": 160,
+    "fraud_rate": 0.08
+  }
+}

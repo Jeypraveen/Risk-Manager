@@ -1,0 +1,10 @@
+{
+  "coefficients": {
+    "tabular_risk_score": 3.961272231398222,
+    "semantic_similarity": 10.44773206838683,
+    "empty_box_flag": -1.651192793545504,
+    "modality_confidence": -0.6651448002088831
+  },
+  "intercept": -7.459963080159845,
+  "train_accuracy": 0.9145
+}

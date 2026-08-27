@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific
+# Model checkpoints (too large for git)
+models/*.pkl
+models/*.joblib
+models/*.bin
+models/*.pt
+models/*.pth
+models/*.onnx
+
+# Cached embeddings (regenerable)
+data/cache/*.npy
+data/cache/*.npz
+
+# SQLite audit database (generated at runtime)
+*.db
+
+# But DO commit evaluation results
+!evaluation/results/
+
+# Logs
+*.log

@@ -1,0 +1,5 @@
+return_id,catalog_image_path,return_image_path,fraud_subtype,item_category
+DEMO-PHONE-LEGIT,data/images/catalog/smartphone.png,data/images/returns/smartphone_legitimate.png,none,electronics
+DEMO-PHONE-EMPTY,data/images/catalog/smartphone.png,data/images/returns/empty_box_fraud.png,empty_box,electronics
+DEMO-PHONE-SUB,data/images/catalog/smartphone.png,data/images/returns/substitution_fraud.png,substitution,electronics
+DEMO-HEAD-LEGIT,data/images/catalog/headphones.png,data/images/returns/headphones_legitimate.png,none,electronics
