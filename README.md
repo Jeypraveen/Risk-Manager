@@ -70,9 +70,9 @@ If you prefer Docker, a `docker-compose` setup is provided:
 
 The repository includes pre-staged sample images so the vision pipeline can be tested immediately, without needing to source your own photos:
 
-*   `data/images/catalog/` — reference product photos (e.g. iPhone, sneakers, headphones) representing what was originally ordered.
-*   `data/images/returns/` — corresponding return photos, including genuine matches, blurry/damaged items, and clear substitution/fraud cases (e.g. an unrelated object returned in place of the ordered item).
-*   `data/images/image_mapping.csv` — maps each catalog image to its intended return-image pairing and labels the scenario (`legitimate`, `nudge`, `substitution_fraud`, `empty_box`), so you can look up which pairing demonstrates which decision path before testing.
+*   `data/images/catalog/` - reference product photos (e.g. iPhone, sneakers, headphones) representing what was originally ordered.
+*   `data/images/returns/` - corresponding return photos, including genuine matches, blurry/damaged items, and clear substitution/fraud cases (e.g. an unrelated object returned in place of the ordered item).
+*   `data/images/image_mapping.csv` - maps each catalog image to its intended return-image pairing and labels the scenario (`legitimate`, `nudge`, `substitution_fraud`, `empty_box`), so you can look up which pairing demonstrates which decision path before testing.
 
 In the demo UI, use the **Catalog Reference** and **Customer Return** upload boxes under "Vision Verification" to pair any catalog image with any return image and see the Trust Score respond in real time. Pairing a catalog image with its matching return photo (per the mapping above) demonstrates the auto-approve path; pairing it with a mismatched or substituted image demonstrates the manual-review path.
 
@@ -99,7 +99,7 @@ As per the prompt guidelines, we present honest metrics that consider false-posi
 *   **Test PR-AUC (Fusion):** `0.858`
 *   **Cost-Optimal Threshold (Fusion):** `0.803` (Precision: `0.830`, Recall: `0.762`)
 
-> **Note on Fusion Evaluation:** Both the Fusion PR-AUC and the cost-optimal threshold/precision/recall above are evaluated using simulated vision scores that are statistically representative of the pipeline's expected behavior — they do not reflect a full end-to-end evaluation of the actual DINOv2 pipeline on real images across the full test set. The *real* vision pipeline (DINOv2 similarity, empty-box detection) was separately and directly verified on the project's staged image set — see the [Validity Boundaries](evaluation/results/validity_boundaries.md) document for the real, measured similarity scores and what they prove.
+> **Note on Fusion Evaluation:** Both the Fusion PR-AUC and the cost-optimal threshold/precision/recall above are evaluated using simulated vision scores that are statistically representative of the pipeline's expected behavior - they do not reflect a full end-to-end evaluation of the actual DINOv2 pipeline on real images across the full test set. The *real* vision pipeline (DINOv2 similarity, empty-box detection) was separately and directly verified on the project's staged image set - see the [Validity Boundaries](evaluation/results/validity_boundaries.md) document for the real, measured similarity scores and what they prove.
 
 For full transparency regarding what these synthetic metrics *do* and *do not* prove, please read our [Validity Boundaries](evaluation/results/validity_boundaries.md) document.
 
