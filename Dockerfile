@@ -1,10 +1,12 @@
-FROM python:3.11-slim
+# Pin to Bookworm explicitly so the base image doesn't silently drift
+# to a newer Debian release (e.g. Trixie) that removes/renames packages.
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
 # Install system dependencies required for OpenCV, PyTorch, and LightGBM
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
     libglib2.0-0 \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
@@ -13,6 +15,7 @@ COPY requirements.txt .
 
 # Install PyTorch CPU first to avoid massive CUDA downloads
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
 # Install remaining requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
