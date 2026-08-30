@@ -52,11 +52,19 @@ def train_model(
     to find reasonable hyperparameters without overfitting.
     """
     # Base model
+    # NOTE: n_jobs=1 here is intentional. RandomizedSearchCV below already
+    # parallelizes across CV folds/candidates (n_jobs=-1). If the inner
+    # model ALSO parallelizes (n_jobs=-1), you get nested parallelism —
+    # joblib forks one process per core, and each forked process tries to
+    # spin up its own OpenMP thread pool. On Linux (including inside Docker
+    # containers, even on Windows/WSL2 hosts), this fork+OpenMP combination
+    # can deadlock permanently. Keeping the inner model single-threaded and
+    # letting the search own the parallelism avoids this entirely.
     base_model = lgb.LGBMClassifier(
         objective="binary",
         metric="binary_logloss",
         random_state=RANDOM_SEED,
-        n_jobs=-1,
+        n_jobs=1,
         verbose=-1,
         # Handle class imbalance
         is_unbalance=True,
