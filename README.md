@@ -58,7 +58,7 @@ This project includes a fully functional FastAPI backend and a professional, sin
 5. **Open the Demo UI:**
    Open `http://localhost:8000/demo/index.html` in any web browser.
 
-### Option 2: Docker - Provided but not fully verified in testing
+### Option 2: Docker 
 If you prefer Docker, a `docker-compose` setup is provided:
 1. Clone the repository and navigate into it:
    ```bash
