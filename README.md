@@ -1,6 +1,6 @@
 # Risk Manager: AI-Powered Return Fraud Detection
 
-![Risk Manager](https://img.shields.io/badge/Track-AI%20Risk%20Manager-blue)
+![Risk Manager](https://img.shields.io/badge/Track%202-AI%20Risk%20Manager-blue)
 ![Status](https://img.shields.io/badge/Status-Complete-success)
 
 A defense-only, production-grade architecture AI Risk Manager (with demo-scale validation) designed to stop e-commerce return fraud (empty-box, substitution, wardrobing) through a combination of behavioral tabular scoring and visual verification.
