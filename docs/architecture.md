@@ -34,4 +34,4 @@ The system then uses a three-way decision router to decide whether to:
 *   **Audit Trail:** An SQLite-backed logger records every decision, including the exact inputs, intermediate scores, circuit breaker failures, and the exact config thresholds at the time of the decision.
 
 ## Why Late Fusion?
-In e-commerce, images are often missing, blurry, or fail to upload. An early-fusion model (e.g., a massive multi-modal transformer) would struggle or fail completely if a modality is dropped. By keeping the tabular and vision pipelines separate until the final step, we ensure **graceful degradation** — the system always provides a score, even if it's just based on tabular data.
+In e-commerce, images are often missing, blurry, or fail to upload. An early-fusion model (e.g., a massive multi-modal transformer) would struggle or fail completely if a modality is dropped. By keeping the tabular and vision pipelines separate until the final step, we ensure **graceful degradation** - the system always provides a score, even if it's just based on tabular data.
