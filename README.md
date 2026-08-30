@@ -24,7 +24,7 @@ This project includes a fully functional FastAPI backend and a professional, sin
 1. **Clone & Setup Environment:**
    ```bash
    git clone <YOUR_REPO_URL>
-   cd risk-manager
+   cd <YOUR_REPO_FOLDER_NAME>
    python -m venv venv
    ```
 
@@ -63,7 +63,7 @@ If you prefer Docker, a `docker-compose` setup is provided:
 1. Clone the repository and navigate into it:
    ```bash
    git clone <YOUR_REPO_URL>
-   cd risk-manager
+   cd <YOUR_REPO_FOLDER_NAME>
    ```
 2. Build and run the entire stack (Backend + UI) with one command:
    ```bash
