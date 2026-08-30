@@ -7,8 +7,18 @@ A defense-only, production-grade architecture AI Risk Manager (with demo-scale v
 
 Built for **Razorpay AI Buildathon 2026, Track 02 (AI Risk Manager)**.
 
-🎥 **[Watch the 5-Minute Pitch Video Here](INSERT_YOUTUBE_LINK_HERE)**
-📄 **[Read the Full Project Report Here](Return_Risk_Scorer_Report.pdf)**
+> 💡 **Tip for Reviewers:** To view the video or report in a new tab without losing this page, please **Cmd + Click** (For Mac) or **Ctrl + Click** (For Windows) the buttons below.
+
+<br>
+
+<a href="INSERT_DRIVE_VIDEO_LINK_HERE">
+  <img src="https://img.shields.io/badge/▶_Watch_Pitch_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Pitch Video">
+</a>
+<a href="INSERT_DRIVE_PDF_LINK_HERE">
+  <img src="https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Read Full Report">
+</a>
+
+<br>
 
 ## 🚀 Quick Start (Demo)
 
