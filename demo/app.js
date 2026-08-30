@@ -94,7 +94,7 @@ function randomizeData() {
         document.getElementById("is_cod").value = Math.random() < 0.5 ? "1" : "0";
         document.getElementById("delivery_to_return_hours").value = Math.floor(Math.random() * 200 + 48); // Normal
     }
-    
+
     // Photo randomly provided or not
     hasReturnPhoto.value = Math.random() < 0.7 ? "1" : "0";
     hasReturnPhoto.dispatchEvent(new Event('change'));
@@ -112,6 +112,17 @@ async function scoreRequest() {
         formData.set("is_cod", document.getElementById("is_cod").value);
         formData.set("has_return_photo", document.getElementById("has_return_photo").value);
         formData.set("item_category", document.getElementById("item_category").value);
+
+        // Append the uploaded files to formData
+        const catalogInput = document.getElementById("catalog_image");
+        if (catalogInput && catalogInput.files.length > 0) {
+            formData.append("catalog_image", catalogInput.files[0]);
+        }
+
+        const returnInput = document.getElementById("return_image");
+        if (returnInput && returnInput.files.length > 0) {
+            formData.append("return_image", returnInput.files[0]);
+        }
 
         const response = await fetch(`${API_BASE}/score`, {
             method: "POST",
@@ -131,11 +142,21 @@ async function scoreRequest() {
     }
 }
 
+// Turn a raw feature key like "prior_return_approval_rate" into
+// "Prior Return Approval Rate" for display.
+function formatFeatureName(feat) {
+    return feat
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 function updateUI(data) {
     // 1. Outcome Banner
     const decision = data.decision.outcome;
     outcomeBanner.className = `outcome-banner glass-panel ${decision}`;
-    
+
     const icons = {
         'auto_approve': '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
         'nudge': '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
@@ -143,38 +164,53 @@ function updateUI(data) {
     };
 
     outcomeIcon.innerHTML = icons[decision];
-    
+
     let title = "Approved";
     if (decision === "nudge") title = `Nudge: ${data.decision.nudge_type === 'request_photo' ? 'Request Photo' : 'Offer Store Credit'}`;
     if (decision === "manual_review") title = "Manual Review Required";
-    
+
     decisionText.innerText = title;
     decisionReason.innerText = data.decision.reason;
 
     // 2. Scores
     const trust = data.scores.trust_score;
     trustScoreVal.innerText = trust.toFixed(2);
-    
+
     // Dynamic bar color based on thresholds
     const pct = trust * 100;
-    trustScoreFill.style.width = `${pct}%`;
+    trustScoreFill.style.left = `${pct}%`;
     if (decision === 'auto_approve') trustScoreFill.style.background = 'var(--success)';
     else if (decision === 'nudge') trustScoreFill.style.background = 'var(--warning)';
     else trustScoreFill.style.background = 'var(--danger)';
 
-    // Update threshold markers
-    document.querySelector('.review-threshold').style.left = `${data.thresholds.effective_review * 100}%`;
-    document.querySelector('.approve-threshold').style.left = `${data.thresholds.effective_approve * 100}%`;
+    // Update threshold markers dynamically on the gauge segments
+    const reviewPct = data.thresholds.effective_review * 100;
+    const approvePct = data.thresholds.effective_approve * 100;
+
+    const dangerSeg = document.querySelector('.gauge-segment.danger');
+    const warningSeg = document.querySelector('.gauge-segment.warning');
+    const successSeg = document.querySelector('.gauge-segment.success');
+
+    if (dangerSeg && warningSeg && successSeg) {
+        dangerSeg.style.width = `${reviewPct}%`;
+        warningSeg.style.width = `${approvePct - reviewPct}%`;
+        successSeg.style.width = `${100 - approvePct}%`;
+    }
 
     // 3. Vision Signals
-    if (data.scores.semantic_similarity !== null) {
+    if (data.scores.semantic_similarity != null) {
         semanticVal.innerText = data.scores.semantic_similarity.toFixed(2);
     } else {
         semanticVal.innerText = "N/A";
     }
-    
-    emptyVal.innerText = data.scores.empty_box_flag === null ? "N/A" : (data.scores.empty_box_flag ? "Yes" : "No");
-    confVal.innerText = data.scores.modality_confidence.toFixed(2);
+
+    emptyVal.innerText = data.scores.empty_box_flag == null ? "N/A" : (data.scores.empty_box_flag ? "Yes" : "No");
+
+    if (data.scores.modality_confidence != null) {
+        confVal.innerText = data.scores.modality_confidence.toFixed(2);
+    } else {
+        confVal.innerText = "N/A";
+    }
 
     // 4. Circuit Breaker
     if (data.failure && data.failure.occurred) {
@@ -191,7 +227,7 @@ function updateUI(data) {
         const width = Math.max(5, val * 200); // Scale for display
         featureHtml += `
             <div class="feature-row">
-                <div class="feature-name" title="${feat}">${feat.replace(/_/g, ' ')}</div>
+                <div class="feature-name" title="${formatFeatureName(feat)}">${formatFeatureName(feat)}</div>
                 <div class="feature-bar-container">
                     <div class="feature-bar-fill" style="width: ${width}%"></div>
                 </div>
@@ -211,7 +247,7 @@ function updateUI(data) {
 function showToast(msg, isError = false) {
     const toast = document.getElementById("toast");
     toast.innerText = msg;
-    toast.style.background = isError ? "var(--danger)" : "var(--panel-bg)";
+    toast.style.background = isError ? "var(--danger)" : "var(--text-primary)";
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 3000);
 }
@@ -223,3 +259,15 @@ style.innerHTML = `
 .spinner { animation: spin 1s linear infinite; transform-origin: center; }
 `;
 document.head.appendChild(style);
+
+function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById(previewId);
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}

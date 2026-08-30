@@ -112,9 +112,6 @@ SAM2_CHECKPOINT = "facebook/sam2-hiera-tiny"
 # is below this threshold, flag as potentially empty.
 EMPTY_BOX_MASK_AREA_THRESHOLD = 0.05  # 5% of image area
 
-# DINOv2 similarity: below this, items are considered "different"
-SIMILARITY_THRESHOLD = 0.50
-
 # ──────────────────────────────────────────────
 # Nudge & Re-Photo Logic
 # ──────────────────────────────────────────────

@@ -1,10 +1,10 @@
 {
   "coefficients": {
-    "tabular_risk_score": 3.961272231398222,
-    "semantic_similarity": 10.44773206838683,
-    "empty_box_flag": -1.651192793545504,
-    "modality_confidence": -0.6651448002088831
+    "tabular_risk_score": 3.9475373504161277,
+    "semantic_similarity": 10.44926263985118,
+    "empty_box_flag": -1.643599445107665,
+    "modality_confidence": -0.6645919456977621
   },
-  "intercept": -7.459963080159845,
-  "train_accuracy": 0.9145
+  "intercept": -7.460358568394733,
+  "train_accuracy": 0.914
 }

@@ -47,3 +47,5 @@ data/cache/*.npz
 
 # Logs
 *.log
+
+data/synthetic/*.csv

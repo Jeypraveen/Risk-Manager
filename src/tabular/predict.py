@@ -91,9 +91,12 @@ class TabularScorer:
 
         try:
             import shap
-            # Create a TreeExplainer for the LightGBM model
-            explainer = shap.TreeExplainer(self.model)
-            shap_values = explainer.shap_values(df_prepared)
+            import warnings
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=".*LightGBM binary classifier with TreeExplainer shap values output has changed.*")
+                # Create a TreeExplainer for the LightGBM model
+                explainer = shap.TreeExplainer(self.model)
+                shap_values = explainer.shap_values(df_prepared)
             # shap_values[1] contains the values for the positive class (fraud)
             # If shap_values is a list, take [1]. If it's a single array (binary clf in some versions), take it.
             if isinstance(shap_values, list):

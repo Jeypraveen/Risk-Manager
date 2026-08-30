@@ -28,7 +28,7 @@ from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
@@ -53,9 +53,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Return-Risk Scorer",
-    description="AI-powered return fraud detection with visual verification",
-    version="0.1.0",
+    title="Risk Manager",
+    description="AI-powered return fraud detection.",
+    version="1.0.0",
 )
 
 # CORS for demo UI
@@ -129,6 +129,11 @@ def _get_rephoto_count_from_db(return_id: str) -> int:
 
 
 # ── Endpoints ──
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(content=b"", media_type="image/x-icon", status_code=204)
+
 
 @app.get("/api/health")
 async def health():
@@ -236,8 +241,8 @@ async def score_return(
                 failure_details=str(e),
                 model_version="v0.1.0",
             )
-        except Exception:
-            pass  # Audit logging itself failed — at least we tried
+        except Exception as log_e:
+            logger.error(f"Audit logging itself failed: {log_e}")
         raise HTTPException(status_code=500, detail=f"Tabular scoring failed: {e}")
 
     # ── Step 2: Derive server-side rephoto_count ──

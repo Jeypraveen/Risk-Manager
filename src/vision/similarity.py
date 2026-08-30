@@ -59,7 +59,15 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
     _load_model()
 
     try:
-        image = Image.open(image_path).convert("RGB")
+        im = Image.open(image_path)
+        if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+            im = im.convert('RGBA')
+            bg = Image.new('RGB', im.size, (255, 255, 255))
+            bg.paste(im, mask=im.split()[3])
+            image = bg
+        else:
+            image = im.convert("RGB")
+            
         inputs = _processor(images=image, return_tensors="pt").to(_device)
 
         with torch.no_grad():

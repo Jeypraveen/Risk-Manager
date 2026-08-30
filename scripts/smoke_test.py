@@ -60,6 +60,7 @@ try:
           f"legit={legit:.3f}, fraud={fraud:.3f}")
     check("Legit score > 0.5", legit > 0.5, f"legit={legit:.3f}")
     check("Fraud score < 0.5", fraud < 0.5, f"fraud={fraud:.3f}")
+    print(f"  legit={legit:.4f}, fraud={fraud:.4f}")
 except FileNotFoundError as e:
     check("Model loads", False, "Run: python -m src.tabular.train")
 
@@ -87,20 +88,20 @@ try:
     r0 = make_decision(0.5, modality_confidence=0.0, rephoto_count=0)
     r1 = make_decision(0.5, modality_confidence=0.0, rephoto_count=1)
     r2 = make_decision(0.5, modality_confidence=0.0, rephoto_count=2)
-    check("rephoto_count=0 → NUDGE/request_photo", r0.decision.value == 'nudge')
-    check("rephoto_count=1 → NUDGE/request_photo", r1.decision.value == 'nudge')
-    check("rephoto_count=2 → MANUAL_REVIEW (cap hit)", r2.decision.value == 'manual_review',
+    check("rephoto_count=0 -> NUDGE/request_photo", r0.decision.value == 'nudge')
+    check("rephoto_count=1 -> NUDGE/request_photo", r1.decision.value == 'nudge')
+    check("rephoto_count=2 -> MANUAL_REVIEW (cap hit)", r2.decision.value == 'manual_review',
           f"got {r2.decision.value}")
     check("Cap forced_by=rephoto_cap", r2.forced_by == 'rephoto_cap', f"got {r2.forced_by}")
 
     vf = make_decision(0.9, vision_failed=True)
-    check("Vision failure → MANUAL_REVIEW (not auto-approve)", vf.decision.value == 'manual_review')
+    check("Vision failure -> MANUAL_REVIEW (not auto-approve)", vf.decision.value == 'manual_review')
     check("Vision failure forced_by=circuit_breaker", vf.forced_by == 'circuit_breaker')
 
     auto = make_decision(0.9)
     manual = make_decision(0.1)
-    check("High score → AUTO_APPROVE", auto.decision.value == 'auto_approve')
-    check("Low score → MANUAL_REVIEW", manual.decision.value == 'manual_review')
+    check("High score -> AUTO_APPROVE", auto.decision.value == 'auto_approve')
+    check("Low score -> MANUAL_REVIEW", manual.decision.value == 'manual_review')
 except Exception as e:
     check("Decision logic", False, str(e))
 
@@ -110,22 +111,22 @@ try:
     import numpy as np
     cb = CircuitBreaker()
     no_img = cb.check_image_availability(None)
-    check("None image → IMAGE_UNAVAILABLE", no_img is not None and no_img.failure_type == FailureType.IMAGE_UNAVAILABLE)
+    check("None image -> IMAGE_UNAVAILABLE", no_img is not None and no_img.failure_type == FailureType.IMAGE_UNAVAILABLE)
     real_img = cb.check_image_availability("some/path.jpg")
-    check("Non-None path → no failure", real_img is None)
+    check("Non-None path -> no failure", real_img is None)
 
     cb2 = CircuitBreaker()
     cb2.enable_checkpoint_mismatch_simulation()
     mismatch = cb2.check_embedding_dimensions(None)
-    check("Mismatch sim → VISION_MODEL_FAILURE", mismatch is not None and mismatch.failure_type == FailureType.VISION_MODEL_FAILURE)
+    check("Mismatch sim -> VISION_MODEL_FAILURE", mismatch is not None and mismatch.failure_type == FailureType.VISION_MODEL_FAILURE)
 
     good_emb = np.zeros(384)
     no_fail = cb.check_embedding_dimensions(good_emb)
-    check("Correct dim 384 → no failure", no_fail is None)
+    check("Correct dim 384 -> no failure", no_fail is None)
 
     bad_emb = np.zeros(768)
     dim_fail = cb.check_embedding_dimensions(bad_emb)
-    check("Wrong dim 768 → VISION_MODEL_FAILURE", dim_fail is not None)
+    check("Wrong dim 768 -> VISION_MODEL_FAILURE", dim_fail is not None)
 
     result, err = cb.wrap_vision_call(lambda: 1/0)
     check("wrap_vision_call catches exceptions", result is None and err is not None)
@@ -145,12 +146,16 @@ try:
     )
     decisions = audit.get_decisions_for_return('TEST-001')
     stats = audit.get_stats()
-    os.unlink(tmp_db)
     check("Writes a row", len(decisions) == 1)
     check("Reads back correct decision", decisions[0]['decision'] == 'auto_approve')
     check("Stats reports total_decisions=1", stats['total_decisions'] == 1)
 except Exception as e:
     check("Audit trail", False, str(e))
+finally:
+    try:
+        os.unlink(tmp_db)
+    except Exception:
+        pass  # Windows may hold the file briefly
 
 # ── Image files ──
 print("\n--- Image assets ---")

@@ -81,7 +81,7 @@ class AuditTrail:
                 try:
                     conn.execute(stmt)
                     conn.commit()
-                except Exception:
+                except sqlite3.OperationalError:
                     pass  # Column already exists — this is expected for fresh DBs
 
     def log_decision(

@@ -1,10 +1,10 @@
-# Architecture: Return-Risk Scorer
+# Architecture: Risk Manager
 
 This document explains the system architecture for the Razorpay AI Buildathon 2026.
 
 ## System Overview
 
-The Return-Risk Scorer evaluates e-commerce return requests using a **Late-Fusion Meta-Learner** architecture. It combines tabular risk scoring (metadata like account age, return velocity, order value) with a vision pipeline (customer-provided return photos) to produce a unified **Trust Score**.
+The Risk Manager evaluates e-commerce return requests using a **Late-Fusion Meta-Learner** architecture. It combines tabular risk scoring (metadata like account age, return velocity, order value) with a vision pipeline (customer-provided return photos) to produce a unified **Trust Score**.
 
 The system then uses a three-way decision router to decide whether to:
 1.  `AUTO_APPROVE`: Instant refund (high trust).

@@ -1,28 +1,82 @@
-# Razorpay AI Buildathon 2026: Return-Risk Scorer
+# Risk Manager: AI-Powered Return Fraud Detection
 
 ![Risk Manager](https://img.shields.io/badge/Track-AI%20Risk%20Manager-blue)
 ![Status](https://img.shields.io/badge/Status-Complete-success)
 
 A defense-only, production-grade architecture AI Risk Manager (with demo-scale validation) designed to stop e-commerce return fraud (empty-box, substitution, wardrobing) through a combination of behavioral tabular scoring and visual verification.
 
-Built for **Razorpay AI Buildathon 2026, Track 02**.
+Built for **Razorpay AI Buildathon 2026, Track 02 (AI Risk Manager)**.
+
+🎥 **[Watch the 5-Minute Pitch Video Here](INSERT_YOUTUBE_LINK_HERE)**
+📄 **[Read the Full Project Report Here](Return_Risk_Scorer_Report.pdf)**
 
 ## 🚀 Quick Start (Demo)
 
-This project includes a fully functional FastAPI backend and a beautiful glassmorphism HTML/JS dashboard.
+This project includes a fully functional FastAPI backend and a professional, single-page interactive dashboard.
 
-1. **Activate the virtual environment:**
-   ```powershell
-   .\venv\Scripts\Activate
+### Option 1: Native (Python) - Recommended, fully tested
+
+1. **Clone & Setup Environment:**
+   ```bash
+   git clone <YOUR_REPO_URL>
+   cd risk-manager
+   python -m venv venv
    ```
 
-2. **Start the API Server:**
-   ```powershell
+2. **Activate and Install:**
+   ```bash
+   # On Windows:
+   .\venv\Scripts\Activate
+   # On Mac/Linux:
+   source venv/bin/activate
+
+   # Install CPU PyTorch first (to avoid massive CUDA downloads)
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+   
+   # Install remaining requirements
+   pip install -r requirements.txt
+   ```
+
+3. **Generate Data and Train Models:**
+   Because model checkpoints are not checked into Git, you must generate synthetic data and train the models before starting the server.
+   ```bash
+   python -m data.generate_data
+   python -m src.tabular.train
+   python -m scripts.train_meta_learner
+   ```
+
+4. **Start the API Server:**
+   ```bash
    python src/api/server.py
    ```
 
-3. **Open the Demo UI:**
-   Simply open `demo/index.html` in any web browser. No frontend build step required!
+5. **Open the Demo UI:**
+   Open `http://localhost:8000/demo/index.html` in any web browser.
+
+### Option 2: Docker - Provided but not fully verified in testing
+If you prefer Docker, a `docker-compose` setup is provided:
+1. Clone the repository and navigate into it:
+   ```bash
+   git clone <YOUR_REPO_URL>
+   cd risk-manager
+   ```
+2. Build and run the entire stack (Backend + UI) with one command:
+   ```bash
+   docker-compose up --build
+   ```
+3. Open `http://localhost:8000/demo/index.html` in your web browser!
+
+## 🖼️ Sample Test Images
+
+The repository includes pre-staged sample images so the vision pipeline can be tested immediately, without needing to source your own photos:
+
+*   `data/images/catalog/` — reference product photos (e.g. iPhone, sneakers, headphones) representing what was originally ordered.
+*   `data/images/returns/` — corresponding return photos, including genuine matches, blurry/damaged items, and clear substitution/fraud cases (e.g. an unrelated object returned in place of the ordered item).
+*   `data/images/image_mapping.csv` — maps each catalog image to its intended return-image pairing and labels the scenario (`legitimate`, `nudge`, `substitution_fraud`, `empty_box`), so you can look up which pairing demonstrates which decision path before testing.
+
+In the demo UI, use the **Catalog Reference** and **Customer Return** upload boxes under "Vision Verification" to pair any catalog image with any return image and see the Trust Score respond in real time. Pairing a catalog image with its matching return photo (per the mapping above) demonstrates the auto-approve path; pairing it with a mismatched or substituted image demonstrates the manual-review path.
+
+> **Note on image sourcing:** Catalog reference photos were sourced from royalty-free stock imagery (Unsplash/Pexels, free for commercial use); return-photo staging (damaged items, empty boxes, substitutions) was created specifically for this project.
 
 ## 🧠 System Architecture
 
@@ -42,8 +96,10 @@ Read the full details in [docs/architecture.md](docs/architecture.md).
 As per the prompt guidelines, we present honest metrics that consider false-positive costs. The system was evaluated on a held-out test set of 2,000 synthetic return requests with an 8% base fraud rate.
 
 *   **Test PR-AUC (Tabular):** `0.447`
-*   **Test PR-AUC (Fusion):** `0.858` (using synthetic vision signals)
-*   **Cost-Optimal Threshold:** `0.788` (Precision: `0.635`, Recall: `0.338`)
+*   **Test PR-AUC (Fusion):** `0.858`
+*   **Cost-Optimal Threshold (Fusion):** `0.803` (Precision: `0.830`, Recall: `0.762`)
+
+> **Note on Fusion Evaluation:** Both the Fusion PR-AUC and the cost-optimal threshold/precision/recall above are evaluated using simulated vision scores that are statistically representative of the pipeline's expected behavior — they do not reflect a full end-to-end evaluation of the actual DINOv2 pipeline on real images across the full test set. The *real* vision pipeline (DINOv2 similarity, empty-box detection) was separately and directly verified on the project's staged image set — see the [Validity Boundaries](evaluation/results/validity_boundaries.md) document for the real, measured similarity scores and what they prove.
 
 For full transparency regarding what these synthetic metrics *do* and *do not* prove, please read our [Validity Boundaries](evaluation/results/validity_boundaries.md) document.
 
@@ -57,7 +113,7 @@ This system adheres strictly to the "defense-only" requirement:
 ## 📁 Repository Structure
 
 *   `src/`: Core logic (config, tabular, vision, fusion, recovery, api, audit).
-*   `data/`: Synthetic data generator (`generate_data.py`).
+*   `data/`: Synthetic data generator (`generate_data.py`) and staged test images.
 *   `evaluation/`: Evaluation scripts and resulting plots.
 *   `demo/`: HTML/CSS/JS for the interactive dashboard.
 *   `docs/`: Additional architecture documentation.

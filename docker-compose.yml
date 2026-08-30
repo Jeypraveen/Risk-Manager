@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  risk-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razorpay-risk-manager
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
