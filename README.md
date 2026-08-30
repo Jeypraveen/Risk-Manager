@@ -19,7 +19,7 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 
 This project includes a fully functional FastAPI backend and a professional, single-page interactive dashboard.
 
-### Option 1: Native (Python) - Recommended, fully tested
+### Option 1: Native (Python) 
 
 1. **Clone & Setup Environment:**
    ```bash
