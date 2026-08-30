@@ -1,7 +1,7 @@
 # Risk Manager: AI-Powered Return Fraud Detection
 
-![Risk Manager](https://img.shields.io/badge/Track%202-AI%20Risk%20Manager-blue)
-![Status](https://img.shields.io/badge/Status-Completed-success)
+![Risk Manager](https://img.shields.io/badge/Track-AI%20Risk%20Manager-blue)
+![Status](https://img.shields.io/badge/Status-Complete-success)
 
 A defense-only, production-grade architecture AI Risk Manager (with demo-scale validation) designed to stop e-commerce return fraud (empty-box, substitution, wardrobing) through a combination of behavioral tabular scoring and visual verification.
 
@@ -12,10 +12,8 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 <br>
 
 <a href="INSERT_DRIVE_VIDEO_LINK_HERE">
-  <img src="https://img.shields.io/badge/▶_Watch_Pitch_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Pitch Video" style="border:none;">
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="INSERT_DRIVE_PDF_LINK_HERE">
+  <img src="https://img.shields.io/badge/▶_Watch_Demo_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Demo Video" style="border:none;">
+</a> <a href="INSERT_DRIVE_PDF_LINK_HERE">
   <img src="https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Read Full Report" style="border:none;">
 </a>
 
