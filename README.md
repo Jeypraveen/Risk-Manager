@@ -11,10 +11,12 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 
 <br>
 
-<a href="INSERT_DRIVE_VIDEO_LINK_HERE" style="margin-right:12px;">
-  <img src="https://img.shields.io/badge/▶_Watch_Demo_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Demo Video" style="border:none;">
-</a><a href="INSERT_DRIVE_PDF_LINK_HERE">
-  <img src="https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Read Full Report" style="border:none;">
+<a href="INSERT_DRIVE_VIDEO_LINK_HERE">
+  <img src="https://img.shields.io/badge/▶_Watch_Demo_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Demo Video">
+</a>
+&emsp;
+<a href="INSERT_DRIVE_PDF_LINK_HERE">
+  <img src="https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white" alt="Read Full Report">
 </a>
 
 <br>
