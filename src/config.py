@@ -20,7 +20,7 @@ RETURNS_DIR = IMAGES_DIR / "returns"
 CACHE_DIR = DATA_DIR / "cache"
 MODELS_DIR = PROJECT_ROOT / "models"
 EVAL_RESULTS_DIR = PROJECT_ROOT / "evaluation" / "results"
-AUDIT_DB_PATH = PROJECT_ROOT / "audit.db"
+AUDIT_DB_PATH = DATA_DIR / "audit.db"
 
 # Ensure directories exist at import time
 for d in [SYNTHETIC_DIR, CATALOG_DIR, RETURNS_DIR, CACHE_DIR, MODELS_DIR, EVAL_RESULTS_DIR]:

@@ -34,6 +34,7 @@ class AuditTrail:
 
     def _init_db(self) -> None:
         """Create the decisions table if it doesn't exist."""
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute(f"""
