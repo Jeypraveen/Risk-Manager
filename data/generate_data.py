@@ -201,18 +201,17 @@ def add_photo_availability(df: pd.DataFrame, rng: np.random.Generator) -> pd.Dat
     (they think the substitute will pass).
     """
     df = df.copy()
-    has_photo = np.ones(len(df), dtype=int)
-
+    has_photo = []
     for idx, row in df.iterrows():
         if row["is_fraud"] == 1 and row["fraud_subtype"] == "empty_box":
             # Empty-box fraudsters often skip photo (~60% no photo)
-            has_photo[idx] = 1 if rng.random() < 0.40 else 0
+            has_photo.append(1 if rng.random() < 0.40 else 0)
         elif row["is_fraud"] == 1 and row["fraud_subtype"] == "substitution":
             # Substitution fraudsters often submit photos (they think it'll pass)
-            has_photo[idx] = 1 if rng.random() < 0.80 else 0
+            has_photo.append(1 if rng.random() < 0.80 else 0)
         else:
             # Legitimate + wardrobing: ~70% have photos
-            has_photo[idx] = 1 if rng.random() < PHOTO_AVAILABILITY_RATE else 0
+            has_photo.append(1 if rng.random() < PHOTO_AVAILABILITY_RATE else 0)
 
     df["has_return_photo"] = has_photo
     return df
@@ -237,26 +236,26 @@ def split_data(
     from sklearn.model_selection import train_test_split
 
     # First split: train+val vs test
-    train_val, test = train_test_split(
+    train_val, test = train_test_split(  # type: ignore
         df,
         test_size=TEST_RATIO,
-        stratify=df["is_fraud"],
+        stratify=df["is_fraud"],  # type: ignore
         random_state=int(rng.integers(0, 2**31)),
     )
 
     # Second split: train vs val
     val_relative = VAL_RATIO / (TRAIN_RATIO + VAL_RATIO)
-    train, val = train_test_split(
+    train, val = train_test_split(  # type: ignore
         train_val,
         test_size=val_relative,
-        stratify=train_val["is_fraud"],
+        stratify=train_val["is_fraud"],  # type: ignore
         random_state=int(rng.integers(0, 2**31)),
     )
 
     return (
-        train.reset_index(drop=True),
-        val.reset_index(drop=True),
-        test.reset_index(drop=True),
+        train.reset_index(drop=True),  # type: ignore
+        val.reset_index(drop=True),    # type: ignore
+        test.reset_index(drop=True),   # type: ignore
     )
 
 
@@ -270,14 +269,14 @@ def validate_data(df: pd.DataFrame, name: str) -> None:
     # Check no single feature has too high AUC
     from sklearn.metrics import roc_auc_score
 
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    numeric_cols = df.select_dtypes(include="number").columns
     for col in numeric_cols:
         if col in ("is_fraud", "has_return_photo"):
             continue
         try:
             auc = roc_auc_score(df["is_fraud"], df[col])
             # AUC can be < 0.5 if feature is inversely correlated
-            auc = max(auc, 1 - auc)
+            auc = max(auc, 1.0 - auc)  # type: ignore
             flag = " ⚠️  TOO SEPARABLE" if auc > 0.85 else ""
             print(f"  {col:35s} univariate AUC: {auc:.3f}{flag}")
         except ValueError:
@@ -288,7 +287,7 @@ def validate_data(df: pd.DataFrame, name: str) -> None:
         fraud_only = df[df["is_fraud"] == 1]
         if len(fraud_only) > 0:
             print(f"\n  Fraud subtypes:")
-            for subtype, count in fraud_only["fraud_subtype"].value_counts().items():
+            for subtype, count in fraud_only["fraud_subtype"].value_counts().items():  # type: ignore
                 print(f"    {subtype}: {count} ({count/len(fraud_only):.1%})")
 
     # Photo availability

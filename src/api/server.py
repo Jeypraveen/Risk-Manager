@@ -40,6 +40,8 @@ from src.config import (
     THRESHOLD_MANUAL_REVIEW,
     AUDIT_DB_PATH,
     AUDIT_TABLE_NAME,
+    MODELS_DIR,
+    MAX_REPHOTO_REQUESTS,
 )
 from src.tabular.predict import TabularScorer
 from src.fusion.decision import make_decision, Decision
@@ -124,8 +126,8 @@ def _get_rephoto_count_from_db(return_id: str) -> int:
             ).fetchone()
             return int(row[0]) if row else 0
     except Exception as e:
-        logger.warning(f"Could not query rephoto_count from DB: {e}. Falling back to 0.")
-        return 0
+        logger.warning(f"Could not query rephoto_count from DB: {e}. Falling back to max cap.")
+        return MAX_REPHOTO_REQUESTS
 
 
 # ── Endpoints ──
@@ -138,10 +140,12 @@ async def favicon():
 @app.get("/api/health")
 async def health():
     """Health check."""
+    tabular_ready = (MODELS_DIR / "tabular_scorer.joblib").exists()
+    meta_ready = (MODELS_DIR / "meta_learner.joblib").exists()
     return {
         "status": "healthy",
-        "model_loaded": scorer is not None,
-        "meta_learner_trained": meta_learner is not None and meta_learner.is_trained,
+        "model_loaded": tabular_ready,
+        "meta_learner_trained": meta_ready,
         "circuit_breaker": circuit_breaker.get_simulation_status(),
     }
 
@@ -201,7 +205,7 @@ async def score_return(
     (count of prior REQUEST_PHOTO nudges for this return_id) rather than
     trusting the caller's value. This prevents clients from gaming the cap.
     """
-    if return_id is None:
+    if not return_id:
         return_id = f"RET-{uuid.uuid4().hex[:8].upper()}"
 
     # ── Step 1: Tabular scoring ──

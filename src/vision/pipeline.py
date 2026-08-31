@@ -77,29 +77,32 @@ def run_vision_pipeline(
     try:
         from src.vision.similarity import compute_similarity
 
-        sim_result, sim_failure = circuit_breaker.wrap_vision_call(
-            compute_similarity, catalog_image_path, return_image_path
+        sim_output, sim_failure = circuit_breaker.wrap_vision_call(
+            compute_similarity, catalog_image_path, return_image_path, True
         )
 
         if sim_failure is not None:
             result.failure_type = sim_failure.failure_type.value
             result.failure_message = sim_failure.message
             result.failure_details = sim_failure.details
-        elif sim_result is not None:
-            # Check embedding dimensions via circuit breaker
-            from src.vision.similarity import extract_embedding
-            test_emb, emb_failure = circuit_breaker.wrap_vision_call(
-                extract_embedding, return_image_path
-            )
-            dim_failure = circuit_breaker.check_embedding_dimensions(test_emb)
-
-            if dim_failure is not None:
-                result.failure_type = dim_failure.failure_type.value
-                result.failure_message = dim_failure.message
-                result.failure_details = dim_failure.details
+        elif sim_output is not None:
+            sim_result, catalog_emb, return_emb = sim_output
+            
+            if sim_result is None:
+                # Embeddings failed to extract
+                result.failure_type = FailureType.VISION_MODEL_FAILURE.value
+                result.failure_message = "Failed to extract embeddings"
             else:
-                result.semantic_similarity = sim_result
-                signals_computed += 1
+                # Check embedding dimensions via circuit breaker using the already extracted embedding
+                dim_failure = circuit_breaker.check_embedding_dimensions(return_emb)
+
+                if dim_failure is not None:
+                    result.failure_type = dim_failure.failure_type.value
+                    result.failure_message = dim_failure.message
+                    result.failure_details = dim_failure.details
+                else:
+                    result.semantic_similarity = sim_result
+                    signals_computed += 1
 
     except Exception as e:
         logger.error(f"DINOv2 similarity failed: {e}")

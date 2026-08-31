@@ -34,7 +34,8 @@ class AuditTrail:
 
     def _init_db(self) -> None:
         """Create the decisions table if it doesn't exist."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
+            conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute(f"""
                 CREATE TABLE IF NOT EXISTS {AUDIT_TABLE_NAME} (
                     decision_id TEXT PRIMARY KEY,
@@ -114,7 +115,7 @@ class AuditTrail:
         decision_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc).isoformat()
 
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.execute(
                 f"""
                 INSERT INTO {AUDIT_TABLE_NAME} (
@@ -148,7 +149,7 @@ class AuditTrail:
 
     def get_decisions_for_return(self, return_id: str) -> list[dict]:
         """Get all decisions made for a specific return request."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 f"SELECT * FROM {AUDIT_TABLE_NAME} WHERE return_id = ? ORDER BY timestamp",
@@ -158,7 +159,7 @@ class AuditTrail:
 
     def get_recent_decisions(self, limit: int = 50) -> list[dict]:
         """Get the most recent decisions."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 f"SELECT * FROM {AUDIT_TABLE_NAME} ORDER BY timestamp DESC LIMIT ?",
@@ -168,7 +169,7 @@ class AuditTrail:
 
     def get_stats(self) -> dict:
         """Get aggregate statistics on decisions made."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             total = conn.execute(
                 f"SELECT COUNT(*) FROM {AUDIT_TABLE_NAME}"
             ).fetchone()[0]
@@ -196,7 +197,7 @@ class AuditTrail:
 
     def get_failure_events(self) -> list[dict]:
         """Get all decisions that involved a failure event."""
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 f"SELECT * FROM {AUDIT_TABLE_NAME} WHERE failure_event IS NOT NULL ORDER BY timestamp DESC"

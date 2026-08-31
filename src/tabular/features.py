@@ -45,7 +45,7 @@ def compute_derived_features(
     # If pre-computed medians are provided (loaded from training checkpoint), use them.
     # This avoids the single-row inference bug where group median == row's own value.
     if category_medians is not None:
-        mapped = df["item_category"].map(category_medians)
+        mapped = df["item_category"].map(category_medians)  # type: ignore
         # Fill unknown categories with the global median of known medians
         global_fallback = float(np.median(list(category_medians.values()))) if category_medians else 1.0
         mapped = mapped.fillna(global_fallback)
@@ -137,4 +137,4 @@ def prepare_single_request(
     """
     df = pd.DataFrame([request])
     df, feature_cols = prepare_features(df, category_medians=category_medians)
-    return df[feature_cols]
+    return df[feature_cols]  # type: ignore

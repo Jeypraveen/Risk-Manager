@@ -62,7 +62,7 @@ def main():
           f"mean: {tabular_scores.mean():.3f}")
 
     # ── Labels ──
-    labels = val_df["is_fraud"].values.astype(int)
+    labels = np.asarray(val_df["is_fraud"], dtype=int)
 
     # ── Vision signals ──
     # For the val set, no real images exist. We inject SYNTHETIC vision signals

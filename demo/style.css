@@ -54,8 +54,8 @@ body {
         radial-gradient(1100px 480px at 100% -10%, rgba(51, 149, 255, 0.07), transparent 60%),
         var(--bg-color);
     color: var(--text-primary);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 14px;
@@ -82,7 +82,7 @@ body {
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     max-width: 1600px;
     margin: 0 auto;
     padding: 20px 28px;

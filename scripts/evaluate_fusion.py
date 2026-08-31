@@ -152,8 +152,8 @@ def plot_fusion_pr_curve(
     ax.set_title("Tabular-Only vs Fusion PR Curve (Test Set)\n"
                  "*Vision signals are synthetic (real DINOv2 not required)", fontsize=13)
     ax.legend(loc="upper right", fontsize=10)
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 1.05))
     ax.grid(alpha=0.3)
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -192,7 +192,7 @@ def main():
         sys.exit(1)
 
     test_df = pd.read_csv(test_path)
-    y_true = test_df["is_fraud"].values.astype(int)
+    y_true = np.asarray(test_df["is_fraud"], dtype=int)
     n = len(test_df)
     print(f"\nTest set: {n} samples, fraud rate: {y_true.mean():.3f}")
 
@@ -206,7 +206,7 @@ def main():
 
     print("\nScoring test set (tabular)...")
     tabular_scores = scorer.predict_batch(test_df).astype(float)
-    tabular_pr_auc = average_precision_score(y_true, 1 - tabular_scores)
+    tabular_pr_auc = float(average_precision_score(y_true, 1 - tabular_scores))
     print(f"  Tabular PR-AUC: {tabular_pr_auc:.4f}")
 
     # ── Load meta-learner ──
@@ -241,7 +241,7 @@ def main():
         empty_box_flags=empty_flags,
         modality_confidences=mod_confs,
     )
-    fusion_pr_auc = average_precision_score(y_true, 1 - fusion_scores)
+    fusion_pr_auc = float(average_precision_score(y_true, 1 - fusion_scores))
     print(f"  Fusion  PR-AUC: {fusion_pr_auc:.4f}")
     uplift = fusion_pr_auc - tabular_pr_auc
     print(f"  Uplift vs tabular-only: {uplift:+.4f}")
@@ -279,8 +279,8 @@ def main():
             all_metrics = json.load(f)
 
     all_metrics["fusion"] = {
-        "pr_auc": float(fusion_pr_auc),
-        "pr_auc_uplift_vs_tabular": float(uplift),
+        "pr_auc": fusion_pr_auc,
+        "pr_auc_uplift_vs_tabular": uplift,
         "vision_signal_source": "synthetic (calibrated to fraud labels, seed=99)",
         "n_test_samples": n,
         "n_positive": int(y_true.sum()),

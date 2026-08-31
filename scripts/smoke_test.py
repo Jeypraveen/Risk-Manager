@@ -1,4 +1,5 @@
 """Smoke test — runs without a live server, tests all core modules directly."""
+# pyright: reportPossiblyUnboundVariable=false, reportOptionalCall=false, reportOptionalMemberAccess=false, reportArgumentType=false
 import sys
 import os
 import tempfile
@@ -24,17 +25,14 @@ print("=" * 55)
 
 # ── Imports ──
 print("\n--- Imports ---")
-try:
-    from src.config import THRESHOLD_AUTO_APPROVE, THRESHOLD_MANUAL_REVIEW, MAX_REPHOTO_REQUESTS
-    from src.tabular.predict import TabularScorer
-    from src.fusion.decision import make_decision
-    from src.fusion.meta_learner import MetaLearner
-    from src.recovery.circuit_breaker import CircuitBreaker, FailureType
-    from src.audit.trail import AuditTrail
-    from src.vision.pipeline import run_vision_pipeline
-    check("All module imports", True)
-except Exception as e:
-    check("All module imports", False, str(e))
+from src.config import THRESHOLD_AUTO_APPROVE, THRESHOLD_MANUAL_REVIEW, MAX_REPHOTO_REQUESTS
+from src.tabular.predict import TabularScorer
+from src.fusion.decision import make_decision
+from src.fusion.meta_learner import MetaLearner
+from src.recovery.circuit_breaker import CircuitBreaker, FailureType
+from src.audit.trail import AuditTrail
+from src.vision.pipeline import run_vision_pipeline
+check("All module imports", True)
 
 # ── Tabular scorer ──
 print("\n--- Tabular scorer ---")
@@ -128,13 +126,14 @@ try:
     dim_fail = cb.check_embedding_dimensions(bad_emb)
     check("Wrong dim 768 -> VISION_MODEL_FAILURE", dim_fail is not None)
 
-    result, err = cb.wrap_vision_call(lambda: 1/0)
+    result, err = cb.wrap_vision_call(lambda: int("1") / int("0"))
     check("wrap_vision_call catches exceptions", result is None and err is not None)
 except Exception as e:
     check("Circuit breaker", False, str(e))
 
 # ── Audit trail ──
 print("\n--- Audit trail ---")
+tmp_db = None
 try:
     with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
         tmp_db = f.name
@@ -152,10 +151,11 @@ try:
 except Exception as e:
     check("Audit trail", False, str(e))
 finally:
-    try:
-        os.unlink(tmp_db)
-    except Exception:
-        pass  # Windows may hold the file briefly
+    if tmp_db is not None:
+        try:
+            os.unlink(tmp_db)
+        except Exception:
+            pass  # Windows may hold the file briefly
 
 # ── Image files ──
 print("\n--- Image assets ---")

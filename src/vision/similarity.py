@@ -68,9 +68,11 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
         else:
             image = im.convert("RGB")
             
+        assert _processor is not None
         inputs = _processor(images=image, return_tensors="pt").to(_device)
 
         with torch.no_grad():
+            assert _model is not None
             outputs = _model(**inputs)
 
         # CLS token is the first token in last_hidden_state
@@ -85,33 +87,40 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
 def compute_similarity(
     catalog_image_path: str,
     return_image_path: str,
-) -> Optional[float]:
+    return_embeddings: bool = False,
+) -> Optional[float] | tuple[Optional[float], Optional[np.ndarray], Optional[np.ndarray]]:
     """
     Compute cosine similarity between catalog and return item photos.
 
     Args:
         catalog_image_path: Path to the original product catalog image
         return_image_path: Path to the customer's return photo
+        return_embeddings: If True, also return the raw embeddings
 
     Returns:
         float in [0, 1] — cosine similarity (higher = more similar)
         None if either embedding failed
+        If return_embeddings=True, returns (similarity, catalog_emb, return_emb)
     """
     catalog_emb = extract_embedding(catalog_image_path)
     return_emb = extract_embedding(return_image_path)
 
     if catalog_emb is None or return_emb is None:
-        return None
+        return (None, catalog_emb, return_emb) if return_embeddings else None
 
     # Cosine similarity
     dot = np.dot(catalog_emb, return_emb)
     norm = np.linalg.norm(catalog_emb) * np.linalg.norm(return_emb)
     if norm == 0:
-        return None
+        return (None, catalog_emb, return_emb) if return_embeddings else None
 
     similarity = float(dot / norm)
     # Clamp to [0, 1] — cosine can technically be negative
-    return max(0.0, min(1.0, similarity))
+    similarity = max(0.0, min(1.0, similarity))
+
+    if return_embeddings:
+        return similarity, catalog_emb, return_emb
+    return similarity
 
 
 def compute_similarity_from_embeddings(

@@ -96,7 +96,7 @@ def train_model(
     )
 
     print("Running hyperparameter search (20 trials, 3-fold CV)...")
-    search.fit(X_train, y_train)
+    search.fit(X_train, y_train)  # type: ignore
 
     best_model = search.best_estimator_
     print(f"\nBest params: {search.best_params_}")
@@ -113,7 +113,7 @@ def evaluate_model(
     split_name: str,
 ) -> dict:
     """Evaluate the model and return metrics."""
-    y_prob = model.predict_proba(X)[:, 1]
+    y_prob = np.asarray(model.predict_proba(X))[:, 1]
 
     # Metrics
     pr_auc = average_precision_score(y, y_prob)
@@ -179,7 +179,7 @@ def plot_pr_curve(
     output_path: Path,
 ) -> None:
     """Save precision-recall curve."""
-    y_prob = model.predict_proba(X)[:, 1]
+    y_prob = np.asarray(model.predict_proba(X))[:, 1]
     precision, recall, _ = precision_recall_curve(y, y_prob)
     pr_auc = average_precision_score(y, y_prob)
 
@@ -190,8 +190,8 @@ def plot_pr_curve(
     ax.set_ylabel("Precision")
     ax.set_title(f"Precision-Recall Curve — {split_name}")
     ax.legend(loc="upper right")
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 1.05))
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
@@ -208,13 +208,15 @@ def main():
     print(f"Train: {len(train_df)} samples, Val: {len(val_df)} samples")
 
     # Prepare features
-    train_df, feature_cols = prepare_features(train_df)
-    val_df, _ = prepare_features(val_df)
+    # Compute medians from training data to avoid single-row inference bugs and ensure validation matches production
+    category_medians = train_df.groupby("item_category")["order_value"].median().to_dict()
+    train_df, feature_cols = prepare_features(train_df, category_medians=category_medians)
+    val_df, _ = prepare_features(val_df, category_medians=category_medians)
 
-    X_train = train_df[feature_cols].values
-    y_train = train_df["is_fraud"].values
-    X_val = val_df[feature_cols].values
-    y_val = val_df["is_fraud"].values
+    X_train = np.asarray(train_df[feature_cols].values)
+    y_train = np.asarray(train_df["is_fraud"], dtype=int)
+    X_val = np.asarray(val_df[feature_cols].values)
+    y_val = np.asarray(val_df["is_fraud"], dtype=int)
 
     print(f"Features: {len(feature_cols)}")
     print(f"Train fraud rate: {y_train.mean():.3f}")
@@ -230,7 +232,6 @@ def main():
     # Save model — include category medians for correct inference-time feature engineering
     import joblib
     model_path = MODELS_DIR / "tabular_scorer.joblib"
-    category_medians = train_df.groupby("item_category")["order_value"].median().to_dict()
     joblib.dump(
         {
             "model": model,

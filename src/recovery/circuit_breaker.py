@@ -153,9 +153,10 @@ class CircuitBreaker:
 
         # Check actual dimensions
         import numpy as np
-        if hasattr(embedding, 'shape'):
-            actual_dim = embedding.shape[-1] if len(embedding.shape) > 0 else 0
-            if actual_dim != expected_dim:
+        import numpy as np
+        emb_arr = np.asarray(embedding)
+        actual_dim = emb_arr.shape[-1] if len(emb_arr.shape) > 0 else 0
+        if actual_dim != expected_dim:
                 event = FailureEvent(
                     failure_type=FailureType.VISION_MODEL_FAILURE,
                     message=f"Embedding dimension mismatch: expected {expected_dim}, got {actual_dim}",

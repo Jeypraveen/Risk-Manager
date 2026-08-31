@@ -169,8 +169,8 @@ def plot_pr_curve(y_true, y_scores, pr_auc, output_path):
     ax.set_ylabel("Precision", fontsize=12)
     ax.set_title("Precision-Recall Curve -- Tabular Risk Scorer (Test Set)", fontsize=14)
     ax.legend(loc="upper right", fontsize=11)
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 1.05))
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
@@ -235,7 +235,7 @@ def plot_decision_distribution(dist, output_path):
     explode = (0.03, 0.03, 0.03)
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    wedges, texts, autotexts = ax.pie(
+    wedges, texts, autotexts = ax.pie(  # type: ignore
         sizes, explode=explode, labels=labels, colors=colors,
         autopct="%1.1f%%", startangle=90, textprops={"fontsize": 12}
     )
@@ -262,7 +262,7 @@ def main():
     trust_scores = scorer.predict_batch(test_df)
     # For evaluation, we need fraud probability (1 - trust_score)
     fraud_probs = 1.0 - trust_scores
-    y_true = test_df["is_fraud"].values
+    y_true = np.asarray(test_df["is_fraud"], dtype=int)
 
     # PR-AUC
     pr_auc = average_precision_score(y_true, fraud_probs)

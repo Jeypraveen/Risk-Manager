@@ -27,6 +27,10 @@ RUN python -m data.generate_data
 RUN python -m src.tabular.train
 RUN python -m scripts.train_meta_learner
 
+# Create a non-root user and switch to it
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
+
 # Expose the FastAPI default port
 EXPOSE 8000
 

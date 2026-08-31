@@ -103,12 +103,12 @@ class MetaLearner:
 
         # Report coefficients — interpretable since it's logistic regression
         coefs = dict(zip(META_FEATURES, self.model.coef_[0]))
-        intercept = float(self.model.intercept_[0])
+        intercept = float(np.asarray(self.model.intercept_)[0])
 
         metrics = {
             "coefficients": {k: float(v) for k, v in coefs.items()},
             "intercept": intercept,
-            "train_accuracy": float(self.model.score(X, y)),
+            "train_accuracy": float(self.model.score(X, y)),  # type: ignore
         }
 
         print("\nMeta-learner coefficients:")
@@ -148,7 +148,8 @@ class MetaLearner:
         ]])
 
         # predict_proba returns [P(fraud), P(legit)]
-        trust_score = self.model.predict_proba(features)[0, 1]
+        assert self.model is not None
+        trust_score = self.model.predict_proba(features)[0, 1]  # type: ignore
         return float(trust_score)
 
     def predict_batch(
@@ -168,4 +169,5 @@ class MetaLearner:
             empty_box_flags,
             modality_confidences,
         ])
-        return self.model.predict_proba(X)[:, 1]
+        assert self.model is not None
+        return np.asarray(self.model.predict_proba(X))[:, 1]  # type: ignore

@@ -90,7 +90,7 @@ class TabularScorer:
         df_prepared = df_prepared.reindex(columns=self.feature_columns, fill_value=0)
 
         try:
-            import shap
+            import shap  # type: ignore
             import warnings
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message=".*LightGBM binary classifier with TreeExplainer shap values output has changed.*")
