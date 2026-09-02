@@ -153,22 +153,21 @@ class CircuitBreaker:
 
         # Check actual dimensions
         import numpy as np
-        import numpy as np
         emb_arr = np.asarray(embedding)
         actual_dim = emb_arr.shape[-1] if len(emb_arr.shape) > 0 else 0
         if actual_dim != expected_dim:
-                event = FailureEvent(
-                    failure_type=FailureType.VISION_MODEL_FAILURE,
-                    message=f"Embedding dimension mismatch: expected {expected_dim}, got {actual_dim}",
-                    details=f"This indicates a wrong model checkpoint was loaded. "
-                            f"Expected dinov2-small (dim={expected_dim}), "
-                            f"but got a model producing dim={actual_dim}.",
-                    expected_dim=expected_dim,
-                    actual_dim=actual_dim,
-                )
-                self._failure_log.append(event)
-                logger.error(f"Circuit breaker triggered: {event.message}")
-                return event
+            event = FailureEvent(
+                failure_type=FailureType.VISION_MODEL_FAILURE,
+                message=f"Embedding dimension mismatch: expected {expected_dim}, got {actual_dim}",
+                details=f"This indicates a wrong model checkpoint was loaded. "
+                        f"Expected dinov2-small (dim={expected_dim}), "
+                        f"but got a model producing dim={actual_dim}.",
+                expected_dim=expected_dim,
+                actual_dim=actual_dim,
+            )
+            self._failure_log.append(event)
+            logger.error(f"Circuit breaker triggered: {event.message}")
+            return event
 
         return None
 

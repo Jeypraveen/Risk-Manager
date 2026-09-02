@@ -132,4 +132,4 @@ def compute_similarity_from_embeddings(
     norm = np.linalg.norm(catalog_embedding) * np.linalg.norm(return_embedding)
     if norm == 0:
         return 0.0
-    return float(max(0.0, min(1.0, dot / norm)))
+    return max(0.0, min(1.0, float(dot / norm)))

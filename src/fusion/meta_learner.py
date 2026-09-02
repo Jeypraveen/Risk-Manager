@@ -23,7 +23,7 @@ from src.config import MODELS_DIR, RANDOM_SEED
 
 # Input feature names for the meta-learner, in order
 META_FEATURES = [
-    "tabular_risk_score",
+    "tabular_trust_score",
     "semantic_similarity",
     "empty_box_flag",
     "modality_confidence",

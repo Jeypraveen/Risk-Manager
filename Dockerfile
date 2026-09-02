@@ -19,6 +19,9 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 # Install remaining requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Bake DINOv2 weights into the image for offline support
+RUN python -c "from transformers import AutoModel, AutoImageProcessor; AutoModel.from_pretrained('facebook/dinov2-small'); AutoImageProcessor.from_pretrained('facebook/dinov2-small')"
+
 # Copy all project files
 COPY . .
 

@@ -182,7 +182,7 @@ class AuditTrail:
                 decision_counts[row[0]] = row[1]
 
             failure_count = conn.execute(
-                f"SELECT COUNT(*) FROM {AUDIT_TABLE_NAME} WHERE failure_event IS NOT NULL"
+                f"SELECT COUNT(*) FROM {AUDIT_TABLE_NAME} WHERE failure_event IS NOT NULL AND failure_event != 'image_unavailable'"
             ).fetchone()[0]
 
             forced_count = conn.execute(
@@ -201,6 +201,6 @@ class AuditTrail:
         with sqlite3.connect(str(self.db_path), timeout=15) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
-                f"SELECT * FROM {AUDIT_TABLE_NAME} WHERE failure_event IS NOT NULL ORDER BY timestamp DESC"
+                f"SELECT * FROM {AUDIT_TABLE_NAME} WHERE failure_event IS NOT NULL AND failure_event != 'image_unavailable' ORDER BY timestamp DESC"
             )
             return [dict(row) for row in cursor.fetchall()]

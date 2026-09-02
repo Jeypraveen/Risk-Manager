@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path('c:/PRO-CERT/razorpay')))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.vision.pipeline import run_vision_pipeline
 from src.fusion.meta_learner import MetaLearner
