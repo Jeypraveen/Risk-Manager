@@ -65,10 +65,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS for demo UI
+# CORS for local development (restrict in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -261,7 +261,8 @@ async def score_return(
         logger.error(f"Tabular scoring failed for {return_id}: {e}")
         # Log a failure audit row so the event is traceable
         try:
-            audit_trail.log_decision(
+            await asyncio.to_thread(
+                audit_trail.log_decision,
                 return_id=return_id,
                 tabular_score=None,
                 semantic_similarity=None,
@@ -275,7 +276,8 @@ async def score_return(
             )
         except Exception as log_e:
             logger.error(f"Audit logging itself failed: {log_e}")
-        raise HTTPException(status_code=500, detail=f"Tabular scoring failed: {e}")
+        # SEC-FIX: Do not leak the raw exception to the client
+        raise HTTPException(status_code=500, detail="An internal server error occurred while scoring the return.")
 
     # ── Step 2: Derive server-side rephoto_count ──
     rephoto_count = await asyncio.to_thread(_get_rephoto_count_from_db, return_id)
