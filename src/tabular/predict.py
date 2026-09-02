@@ -80,10 +80,10 @@ class TabularScorer:
 
     def get_feature_contributions(self, request: dict) -> dict[str, float]:
         """
-        Get per-feature contribution to the prediction using SHAP.
+        Get per-feature contribution using native LightGBM feature importances.
 
         Returns:
-            Dict mapping feature name to its importance weight for THIS specific request.
+            Dict mapping feature name to its normalized importance weight.
         """
         df = pd.DataFrame([request])
         df_prepared, _ = prepare_features(df, category_medians=self.category_medians)

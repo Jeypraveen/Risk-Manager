@@ -138,10 +138,6 @@ STORE_CREDIT_MESSAGE = (
 # The system should never auto-approve when it can't visually verify.
 VISION_FAILURE_THRESHOLD_RAISE = 0.15
 
-# Simulated failure flags (toggled via API for demo)
-SIMULATE_TIMEOUT = False
-SIMULATE_CHECKPOINT_MISMATCH = False
-
 # ──────────────────────────────────────────────
 # Audit Trail
 # ──────────────────────────────────────────────

@@ -28,6 +28,4 @@ seaborn>=0.13.0
 
 # Utilities
 tqdm>=4.65.0
-# Explainability
-shap>=0.40.0
 requests>=2.31.0
