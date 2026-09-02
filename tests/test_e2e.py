@@ -21,7 +21,7 @@ import sys
 import time
 from pathlib import Path
 
-import requests
+import requests  # type: ignore
 
 API_BASE = "http://localhost:8000/api"
 
