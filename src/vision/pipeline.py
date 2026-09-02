@@ -111,10 +111,10 @@ def run_vision_pipeline(
 
     # ── SAM2 / Heuristic Empty-Box Detection ──
     try:
-        from src.vision.empty_box import detect_empty_box_heuristic_fallback
+        from src.vision.empty_box import detect_empty_box
 
         box_result, box_failure = circuit_breaker.wrap_vision_call(
-            detect_empty_box_heuristic_fallback, return_image_path
+            detect_empty_box, return_image_path
         )
 
         if box_failure is not None:

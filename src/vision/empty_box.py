@@ -75,30 +75,18 @@ def detect_empty_box_heuristic(image_path: str) -> tuple[bool, float]:
         return False, 0.5  # Default: assume not empty
 
 
-def detect_empty_box_heuristic_fallback(image_path: str) -> tuple[bool, float]:
+def detect_empty_box(image_path: str) -> tuple[bool, float]:
     """
-    Lightweight heuristic fallback for empty-box detection.
+    Main entry point for empty-box detection.
 
     STATUS: ACTIVE (Heuristic Fallback) — Because a full SAM2 segmentation model
     requires a ~150MB checkpoint and GPU acceleration, this function serves as
     the default lightweight logic for demo purposes. It uses edge-density and
     color entropy heuristics to estimate if a box is empty.
-
-    A full production implementation would replace this with SAM2AutomaticMaskGenerator
-    to compute precise mask area coverage.
-    """
-    logger.info("Using edge-density heuristic for empty-box detection (SAM2 fallback).")
-    return detect_empty_box_heuristic(image_path)
-
-
-def detect_empty_box(image_path: str) -> tuple[bool, float]:
-    """
-    Main entry point for empty-box detection.
-
-    Uses edge-density and color entropy heuristics to estimate if a box is empty.
     
     Returns:
         (is_empty, coverage_ratio): True if box appears empty,
         and the mask/content coverage ratio [0-1]
     """
-    return detect_empty_box_heuristic_fallback(image_path)
+    logger.info("Using edge-density heuristic for empty-box detection (SAM2 fallback).")
+    return detect_empty_box_heuristic(image_path)

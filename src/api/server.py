@@ -217,6 +217,10 @@ async def score_return(
         raise HTTPException(status_code=400, detail="prior_returns_count cannot be negative")
     if return_velocity_7d < 0:
         raise HTTPException(status_code=400, detail="return_velocity_7d cannot be negative")
+    if delivery_to_return_hours < 0:
+        raise HTTPException(status_code=400, detail="delivery_to_return_hours cannot be negative")
+    if prior_return_approval_rate < 0.0 or prior_return_approval_rate > 1.0:
+        raise HTTPException(status_code=400, detail="prior_return_approval_rate must be between 0.0 and 1.0")
     if address_order_distance_km < 0:
         raise HTTPException(status_code=400, detail="address_order_distance_km cannot be negative")
     if prior_store_credit_count < 0:

@@ -3,3 +3,10 @@ DEMO-PHONE-LEGIT,data/images/catalog/smartphone.png,data/images/returns/smartpho
 DEMO-PHONE-EMPTY,data/images/catalog/smartphone.png,data/images/returns/empty_box_fraud.png,empty_box,electronics
 DEMO-PHONE-SUB,data/images/catalog/smartphone.png,data/images/returns/substitution_fraud.png,substitution,electronics
 DEMO-HEAD-LEGIT,data/images/catalog/headphones.png,data/images/returns/headphones_legitimate.png,none,electronics
+DEMO-IPHONE-LEGIT,data/images/catalog/iphone.jpg,data/images/returns/iphone_return.jpg,none,electronics
+DEMO-SHOES-LEGIT,data/images/catalog/shoes.png,data/images/returns/shoes_legitimate.jpg,none,fashion
+DEMO-WATCH-LEGIT,data/images/catalog/watch.png,data/images/returns/watch_legitimate.jpg,none,fashion
+DEMO-BAG-NUDGE,data/images/catalog/bag.png,data/images/returns/bag_nudge_blurry.jpg,none,fashion
+DEMO-SHOES-RED-FRAUD,data/images/catalog/shoes_red.jpg,data/images/returns/return_fraud_box_1787926845277.jpg,substitution,fashion
+DEMO-SNEAKER-FRAUD,data/images/catalog/catalog_sneaker_1787926829147.jpg,data/images/returns/return_fraud_box_1787926845277.jpg,substitution,fashion
+DEMO-CETA-LEGIT,data/images/catalog/cetaphil.jpg,data/images/returns/cetaphil_return.jpg,none,beauty

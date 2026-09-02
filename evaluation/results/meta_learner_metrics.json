@@ -1,6 +1,6 @@
 {
   "coefficients": {
-    "tabular_risk_score": 3.9475373504161277,
+    "tabular_trust_score": 3.9475373504161277,
     "semantic_similarity": 10.44926263985118,
     "empty_box_flag": -1.643599445107665,
     "modality_confidence": -0.6645919456977621
