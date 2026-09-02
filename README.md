@@ -11,19 +11,33 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 
 <br>
 
-[![Watch Pitch Video](https://img.shields.io/badge/▶_Watch_Pitch_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white)](INSERT_DRIVE_VIDEO_LINK_HERE)&emsp;[![Read Full Report](https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1l1XmbcKFiTyj6E2To-C78_RpXr-0DQ6b/view?usp=sharing)
+[![Watch Pitch Video](https://img.shields.io/badge/▶_Watch_Pitch_Video-1FA463?style=for-the-badge&logo=googledrive&logoColor=white)](#)&emsp;[![Read Full Report](https://img.shields.io/badge/📄_Read_Full_Report-1FA463?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1l1XmbcKFiTyj6E2To-C78_RpXr-0DQ6b/view?usp=sharing)
 <br>
 
 ## 🚀 Quick Start (Demo)
 
 This project includes a fully functional FastAPI backend and a professional, single-page interactive dashboard.
 
-### Option 1: Native (Python) 
+### Option 1: Docker (Highly Recommended)
+Because the vision models are heavy (DINOv2) and require downloading weights, the Docker build automatically bakes the weights directly into the image. This guarantees the application will work perfectly even if the judging sandbox is completely disconnected from the internet.
+
+1. Clone the repository and navigate into it:
+   ```bash
+   git clone https://github.com/Jeypraveen/Risk-Manager.git
+   cd Risk-Manager
+   ```
+2. Build and run the entire stack (Backend + UI) with one command:
+   ```bash
+   docker-compose up --build
+   ```
+3. Open `http://localhost:8000/demo/index.html` in your web browser!
+
+### Option 2: Native (Python) 
 
 1. **Clone & Setup Environment:**
    ```bash
-   git clone <YOUR_REPO_URL>
-   cd <YOUR_REPO_FOLDER_NAME>
+   git clone https://github.com/Jeypraveen/Risk-Manager.git
+   cd Risk-Manager
    python -m venv venv
    ```
 
@@ -51,7 +65,7 @@ This project includes a fully functional FastAPI backend and a professional, sin
 
 4. **Start the API Server:**
 
-   > ⚠️ **Important Note for Offline Reviewers:** The first time the API server runs, the `transformers` library will automatically download the 86MB DINOv2 model weights from the HuggingFace Hub. Ensure you have an active internet connection for the initial run. If your judging sandbox is fully disconnected from the internet, we recommend using **Option 2: Docker** below, as the Dockerfile bakes the weights directly into the container during the build phase.
+   > ⚠️ **Important Note for Offline Reviewers:** The first time the API server runs, the `transformers` library will automatically download the 86MB DINOv2 model weights from the HuggingFace Hub. Ensure you have an active internet connection for the initial run. If your judging sandbox is fully disconnected from the internet, we recommend using **Option 1: Docker** above.
 
    ```bash
    python src/api/server.py
@@ -59,19 +73,6 @@ This project includes a fully functional FastAPI backend and a professional, sin
 
 5. **Open the Demo UI:**
    Open `http://localhost:8000/demo/index.html` in any web browser.
-
-### Option 2: Docker 
-If you prefer Docker, a `docker-compose` setup is provided:
-1. Clone the repository and navigate into it:
-   ```bash
-   git clone <YOUR_REPO_URL>
-   cd <YOUR_REPO_FOLDER_NAME>
-   ```
-2. Build and run the entire stack (Backend + UI) with one command:
-   ```bash
-   docker-compose up --build
-   ```
-3. Open `http://localhost:8000/demo/index.html` in your web browser!
 
 ## 🖼️ Sample Test Images
 

@@ -83,6 +83,11 @@ def make_decision(
         approve_threshold += STORE_CREDIT_THRESHOLD_PENALTY
         approve_threshold = min(approve_threshold, 0.95)  # Cap at 0.95
 
+    # Modification #7: If vision gracefully degraded or image missing, raise the bar for auto-approval
+    if modality_confidence == 0.0:
+        approve_threshold += VISION_FAILURE_THRESHOLD_RAISE
+        approve_threshold = min(approve_threshold, 1.0)  # Never auto-approve if this pushes it > 1.0
+
     # ── Forced decisions ──
 
     # If vision system had an actual FAILURE (not just missing photo),
