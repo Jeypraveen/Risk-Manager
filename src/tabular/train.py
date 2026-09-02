@@ -92,7 +92,7 @@ def train_model(
         cv=3,
         random_state=RANDOM_SEED,
         verbose=1,
-        n_jobs=-1,
+        n_jobs=4,
     )
 
     print("Running hyperparameter search (20 trials, 3-fold CV)...")
