@@ -68,7 +68,7 @@ def detect_empty_box_heuristic(image_path: str) -> tuple[bool, float]:
         coverage_ratio = (edge_density * 0.6 + color_diversity * 0.4)
 
         is_empty = coverage_ratio < EMPTY_BOX_MASK_AREA_THRESHOLD
-        return is_empty, float(coverage_ratio)
+        return bool(is_empty), float(coverage_ratio)
 
     except Exception as e:
         logger.error(f"Heuristic empty-box detection failed: {e}")
