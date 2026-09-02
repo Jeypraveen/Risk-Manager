@@ -208,6 +208,24 @@ async def score_return(
     if not return_id:
         return_id = f"RET-{uuid.uuid4().hex[:8].upper()}"
 
+    # ── Input Validation ──
+    if order_value < 0:
+        raise HTTPException(status_code=400, detail="order_value cannot be negative")
+    if account_age_days < 0:
+        raise HTTPException(status_code=400, detail="account_age_days cannot be negative")
+    if prior_returns_count < 0:
+        raise HTTPException(status_code=400, detail="prior_returns_count cannot be negative")
+    if return_velocity_7d < 0:
+        raise HTTPException(status_code=400, detail="return_velocity_7d cannot be negative")
+    if address_order_distance_km < 0:
+        raise HTTPException(status_code=400, detail="address_order_distance_km cannot be negative")
+    if prior_store_credit_count < 0:
+        raise HTTPException(status_code=400, detail="prior_store_credit_count cannot be negative")
+        
+    valid_categories = {"electronics", "fashion", "home", "beauty", "books", "sports"}
+    if item_category not in valid_categories:
+        raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(valid_categories)}")
+
     # ── Step 1: Tabular scoring ──
     # Failure here raises HTTPException; nothing is logged (model not ready is
     # a server-side issue, not an auditable decision event).

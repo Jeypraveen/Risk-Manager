@@ -50,6 +50,9 @@ This project includes a fully functional FastAPI backend and a professional, sin
    ```
 
 4. **Start the API Server:**
+
+   > ⚠️ **Important Note for Offline Reviewers:** The first time the API server runs, the `transformers` library will automatically download the 86MB DINOv2 model weights from the HuggingFace Hub. Ensure you have an active internet connection for the initial run. If your judging sandbox is fully disconnected from the internet, we recommend using **Option 2: Docker** below, as the Dockerfile bakes the weights directly into the container during the build phase.
+
    ```bash
    python src/api/server.py
    ```

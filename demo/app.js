@@ -213,7 +213,7 @@ function updateUI(data) {
     }
 
     // 4. Circuit Breaker
-    if (data.failure && data.failure.occurred) {
+    if (data.failure && data.failure.occurred && data.failure.type !== 'image_unavailable') {
         cbAlert.classList.remove("hidden");
         cbText.innerText = `Breaker Tripped: ${data.failure.type}`;
     } else {
