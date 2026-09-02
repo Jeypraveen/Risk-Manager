@@ -23,6 +23,9 @@ import sqlite3
 import sys
 import tempfile
 import uuid
+import asyncio
+import shutil
+import torch
 from pathlib import Path
 from typing import Optional
 
@@ -49,6 +52,8 @@ from src.fusion.meta_learner import MetaLearner
 from src.recovery.circuit_breaker import CircuitBreaker, FailureType
 from src.audit.trail import AuditTrail
 from src.vision.pipeline import run_vision_pipeline
+
+torch.set_num_threads(1)
 
 # ── Setup ──
 logging.basicConfig(level=logging.INFO)
@@ -247,8 +252,9 @@ async def score_return(
 
     try:
         s = get_scorer()
-        tabular_score = s.predict(request_data)
-        feature_contributions = s.get_feature_contributions(request_data)
+        def _run_tabular():
+            return s.predict(request_data), s.get_feature_contributions(request_data)
+        tabular_score, feature_contributions = await asyncio.to_thread(_run_tabular)
     except HTTPException:
         raise  # Re-raise model-not-ready errors as-is
     except Exception as e:
@@ -272,7 +278,7 @@ async def score_return(
         raise HTTPException(status_code=500, detail=f"Tabular scoring failed: {e}")
 
     # ── Step 2: Derive server-side rephoto_count ──
-    rephoto_count = _get_rephoto_count_from_db(return_id)
+    rephoto_count = await asyncio.to_thread(_get_rephoto_count_from_db, return_id)
 
     # ── Step 3: Vision pipeline ──
     catalog_path: Optional[str] = None
@@ -284,21 +290,20 @@ async def score_return(
         if catalog_image and catalog_image.filename:
             suffix = Path(catalog_image.filename).suffix or ".jpg"
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                content = await catalog_image.read()
-                tmp.write(content)
+                await asyncio.to_thread(shutil.copyfileobj, catalog_image.file, tmp)
                 catalog_path = tmp.name
                 temp_files.append(catalog_path)
 
         if return_image and return_image.filename:
             suffix = Path(return_image.filename).suffix or ".jpg"
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                content = await return_image.read()
-                tmp.write(content)
+                await asyncio.to_thread(shutil.copyfileobj, return_image.file, tmp)
                 return_path = tmp.name
                 temp_files.append(return_path)
 
         # Run real vision pipeline — circuit breaker catches all exceptions
-        vision_result = run_vision_pipeline(
+        vision_result = await asyncio.to_thread(
+            run_vision_pipeline,
             catalog_image_path=catalog_path,
             return_image_path=return_path,
             circuit_breaker=circuit_breaker,
@@ -340,7 +345,8 @@ async def score_return(
     ml = get_meta_learner()
     if ml is not None and ml.is_trained:
         # Use trained meta-learner for fusion
-        trust_score = ml.predict(
+        trust_score = await asyncio.to_thread(
+            ml.predict,
             tabular_score=tabular_score,
             semantic_similarity=semantic_similarity,
             empty_box_flag=empty_box_flag,
@@ -377,7 +383,8 @@ async def score_return(
     }
 
     try:
-        audit_id = audit_trail.log_decision(
+        audit_id = await asyncio.to_thread(
+            audit_trail.log_decision,
             return_id=return_id,
             tabular_score=tabular_score,
             semantic_similarity=semantic_similarity,

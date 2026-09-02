@@ -89,34 +89,10 @@ class TabularScorer:
         df_prepared, _ = prepare_features(df, category_medians=self.category_medians)
         df_prepared = df_prepared.reindex(columns=self.feature_columns, fill_value=0)
 
-        try:
-            import shap  # type: ignore
-            import warnings
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message=".*LightGBM binary classifier with TreeExplainer shap values output has changed.*")
-                # Create a TreeExplainer for the LightGBM model
-                explainer = shap.TreeExplainer(self.model)
-                shap_values = explainer.shap_values(df_prepared)
-            # shap_values[1] contains the values for the positive class (fraud)
-            # If shap_values is a list, take [1]. If it's a single array (binary clf in some versions), take it.
-            if isinstance(shap_values, list):
-                vals = shap_values[1][0]
-            else:
-                vals = shap_values[0]
-
-            # Normalize magnitudes to sum to 1.0 for the UI
-            abs_vals = np.abs(vals)
-            total = abs_vals.sum() + 1e-8
-            return {
-                name: float(val / total)
-                for name, val in zip(self.feature_columns, abs_vals)
-            }
-        except Exception as e:
-            # Fallback to global importance if SHAP fails
-            print(f"SHAP failed: {e}. Falling back to global importance.")
-            importances = self.model.feature_importances_
-            total = importances.sum() + 1e-8
-            return {
-                name: float(imp / total)
-                for name, imp in zip(self.feature_columns, importances)
-            }
+        # Use native LightGBM feature importances (fast and synchronous-safe)
+        importances = self.model.feature_importances_
+        total = importances.sum() + 1e-8
+        return {
+            name: float(imp / total)
+            for name, imp in zip(self.feature_columns, importances)
+        }
