@@ -25,7 +25,11 @@ import tempfile
 import uuid
 import asyncio
 import shutil
-import torch
+try:
+    import torch
+    torch.set_num_threads(1)
+except ImportError:
+    pass
 from pathlib import Path
 from typing import Optional
 
@@ -54,7 +58,6 @@ from src.recovery.circuit_breaker import CircuitBreaker, FailureType
 from src.audit.trail import AuditTrail
 from src.vision.pipeline import run_vision_pipeline
 
-torch.set_num_threads(1)
 
 # ── Setup ──
 logging.basicConfig(level=logging.INFO)
@@ -217,7 +220,6 @@ async def score_return(
     delivery_to_return_hours: float = Form(default=120),
     item_category: str = Form(default="electronics"),
     address_order_distance_km: float = Form(default=5.0),
-    prior_store_credit_count: int = Form(default=0),
     catalog_image: Optional[UploadFile] = File(default=None),
     return_image: Optional[UploadFile] = File(default=None),
 ):
