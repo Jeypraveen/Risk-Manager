@@ -22,7 +22,7 @@ req_a = {
     "address_order_distance_km": 5.0
 }
 with open("data/images/catalog/iphone.jpg", "rb") as c, open("data/images/returns/iphone_return.jpg", "rb") as r:
-    res_a = score(req_a, files={"catalog_image": c, "return_image": r})
+    res_a = score(req_a, files={"catalog_image": ("cat.jpg", c, "image/jpeg"), "return_image": ("ret.jpg", r, "image/jpeg")})
 print(json.dumps(res_a, indent=2))
 
 print("\n== B. Suspicious Return (New account, high velocity, high value, COD) ==")
@@ -39,7 +39,7 @@ req_b = {
     "address_order_distance_km": 150.0
 }
 with open("data/images/catalog/smartphone.png", "rb") as c, open("data/images/returns/substitution_fraud.png", "rb") as r:
-    res_b = score(req_b, files={"catalog_image": c, "return_image": r})
+    res_b = score(req_b, files={"catalog_image": ("cat.png", c, "image/png"), "return_image": ("ret.png", r, "image/png")})
 print(json.dumps(res_b, indent=2))
 
 print("\n== C. No Photo Return ==")
@@ -82,7 +82,7 @@ req_e = req_c.copy()
 req_e["return_id"] = f"TEST-TIMEOUT-{uuid.uuid4().hex[:6]}"
 requests.post(f"{BASE_URL}/api/trigger-failure", data={"failure_type": "timeout"})
 with open("data/images/catalog/iphone.jpg", "rb") as c, open("data/images/returns/iphone_return.jpg", "rb") as r:
-    res_timeout = score(req_e, files={"catalog_image": c, "return_image": r})
+    res_timeout = score(req_e, files={"catalog_image": ("cat.jpg", c, "image/jpeg"), "return_image": ("ret.jpg", r, "image/jpeg")})
 print(json.dumps(res_timeout, indent=2))
 
 print("\n== F. Circuit Breaker - Checkpoint Mismatch ==")
@@ -91,7 +91,7 @@ req_f["return_id"] = f"TEST-MISMATCH-{uuid.uuid4().hex[:6]}"
 requests.post(f"{BASE_URL}/api/reset-failure")
 requests.post(f"{BASE_URL}/api/trigger-failure", data={"failure_type": "checkpoint_mismatch"})
 with open("data/images/catalog/iphone.jpg", "rb") as c, open("data/images/returns/iphone_return.jpg", "rb") as r:
-    res_mismatch = score(req_f, files={"catalog_image": c, "return_image": r})
+    res_mismatch = score(req_f, files={"catalog_image": ("cat.jpg", c, "image/jpeg"), "return_image": ("ret.jpg", r, "image/jpeg")})
 print(json.dumps(res_mismatch, indent=2))
 
 requests.post(f"{BASE_URL}/api/reset-failure")
