@@ -80,7 +80,7 @@ The repository includes pre-staged sample images so the vision pipeline can be t
 
 *   `data/images/catalog/` - reference product photos (e.g. iPhone, sneakers, headphones) representing what was originally ordered.
 *   `data/images/returns/` - corresponding return photos, including genuine matches, blurry/damaged items, and clear substitution/fraud cases (e.g. an unrelated object returned in place of the ordered item).
-*   `data/images/image_mapping.csv` - maps each catalog image to its intended return-image pairing and labels the scenario (`legitimate`, `nudge`, `substitution_fraud`, `empty_box`), so you can look up which pairing demonstrates which decision path before testing.
+*   `data/images/image_mapping.csv` - maps each catalog image to its intended return-image pairing and labels the fraud subtype (`none`, `substitution`, `empty_box`), so you can look up which pairing demonstrates which decision path before testing.
 
 In the demo UI, use the **Catalog Reference** and **Customer Return** upload boxes under "Vision Verification" to pair any catalog image with any return image and see the Trust Score respond in real time. Pairing a catalog image with its matching return photo (per the mapping above) demonstrates the auto-approve path; pairing it with a mismatched or substituted image demonstrates the manual-review path.
 

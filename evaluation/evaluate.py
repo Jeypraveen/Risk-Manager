@@ -313,8 +313,20 @@ def main():
     }
 
     metrics_path = EVAL_RESULTS_DIR / "metrics_summary.json"
+    
+    if metrics_path.exists():
+        with open(metrics_path, "r") as f:
+            try:
+                existing_metrics = json.load(f)
+            except json.JSONDecodeError:
+                existing_metrics = {}
+    else:
+        existing_metrics = {}
+        
+    existing_metrics.update(all_metrics)
+
     with open(metrics_path, "w") as f:
-        json.dump(all_metrics, f, indent=2)
+        json.dump(existing_metrics, f, indent=2)
 
     print(f"\nAll plots and metrics saved to {EVAL_RESULTS_DIR}")
     print("[OK] Evaluation complete.")

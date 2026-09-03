@@ -135,6 +135,26 @@ def _get_rephoto_count_from_db(return_id: str) -> int:
         logger.warning(f"Could not query rephoto_count from DB: {e}. Falling back to max cap.")
         return MAX_REPHOTO_REQUESTS
 
+def _get_store_credit_count_from_db(return_id: str) -> int:
+    """
+    Query the audit DB for the number of OFFER_STORE_CREDIT nudges already issued
+    for this return_id. This replaces client-supplied prior_store_credit_count.
+    """
+    try:
+        with sqlite3.connect(str(AUDIT_DB_PATH)) as conn:
+            row = conn.execute(
+                f"""
+                SELECT COUNT(*) FROM {AUDIT_TABLE_NAME}
+                WHERE return_id = ?
+                  AND nudge_type = 'offer_store_credit'
+                """,
+                (return_id,),
+            ).fetchone()
+            return int(row[0]) if row else 0
+    except Exception as e:
+        logger.warning(f"Could not query store_credit_count from DB: {e}. Falling back to 0.")
+        return 0
+
 
 # ── Endpoints ──
 
@@ -279,8 +299,9 @@ async def score_return(
         # SEC-FIX: Do not leak the raw exception to the client
         raise HTTPException(status_code=500, detail="An internal server error occurred while scoring the return.")
 
-    # ── Step 2: Derive server-side rephoto_count ──
+    # ── Step 2: Derive server-side counts ──
     rephoto_count = await asyncio.to_thread(_get_rephoto_count_from_db, return_id)
+    prior_store_credit_count = await asyncio.to_thread(_get_store_credit_count_from_db, return_id)
 
     # ── Step 3: Vision pipeline ──
     catalog_path: Optional[str] = None
