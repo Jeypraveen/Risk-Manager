@@ -56,9 +56,8 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
     """
     import torch
 
-    _load_model()
-
     try:
+        _load_model()
         im = Image.open(image_path)
         if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
             im = im.convert('RGBA')
