@@ -18,7 +18,6 @@ const cbText = document.getElementById("cb-text");
 const auditIdVal = document.getElementById("audit-id-val");
 const returnIdVal = document.getElementById("return-id-val");
 const forcedByVal = document.getElementById("forced-by-val");
-const hasReturnPhoto = document.getElementById("has_return_photo");
 const customerPhotoPreview = document.getElementById("customer-photo-preview");
 
 // Simulation Toggles
@@ -44,13 +43,7 @@ simCheckpoint.addEventListener("change", (e) => {
     }
 });
 
-hasReturnPhoto.addEventListener("change", (e) => {
-    if (e.target.value === "0") {
-        customerPhotoPreview.style.opacity = "0.3";
-    } else {
-        customerPhotoPreview.style.opacity = "1";
-    }
-});
+
 
 async function triggerFailure(type) {
     try {
@@ -95,9 +88,10 @@ function randomizeData() {
         document.getElementById("delivery_to_return_hours").value = Math.floor(Math.random() * 200 + 48); // Normal
     }
 
-    // Photo randomly provided or not
-    hasReturnPhoto.value = Math.random() < 0.7 ? "1" : "0";
-    hasReturnPhoto.dispatchEvent(new Event('change'));
+    // Randomize store credits (fraud profiles more likely to have used store credits)
+    document.getElementById("prior_store_credit_count").value = isFraudulent
+        ? Math.floor(Math.random() * 4 + 1)
+        : Math.floor(Math.random() * 2);
 
     showToast("Loaded random profile");
 }
@@ -110,8 +104,8 @@ async function scoreRequest() {
         const formData = new FormData(form);
         // Force the selects to be properly recorded as ints
         formData.set("is_cod", document.getElementById("is_cod").value);
-        formData.set("has_return_photo", document.getElementById("has_return_photo").value);
         formData.set("item_category", document.getElementById("item_category").value);
+        formData.set("prior_store_credit_count", document.getElementById("prior_store_credit_count").value);
 
         // Append the uploaded files to formData
         const catalogInput = document.getElementById("catalog_image");
