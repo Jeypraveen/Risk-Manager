@@ -129,4 +129,4 @@ This system adheres strictly to the "defense-only" requirement:
 
 ## 👤 Author
 
-*   **Jeypraveen** - Razorpay AI Buildathon 2026
+*   **Jey Praveen Sivaraj** - Razorpay AI Buildathon 2026
