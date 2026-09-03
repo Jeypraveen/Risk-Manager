@@ -28,7 +28,7 @@ import shutil
 try:
     import torch
     torch.set_num_threads(1)
-except ImportError:
+except Exception:
     pass
 from pathlib import Path
 from typing import Optional
