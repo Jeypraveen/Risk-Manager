@@ -25,6 +25,7 @@ Dependencies:
 import json
 import sys
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -54,12 +55,14 @@ def inject_synthetic_vision(
     labels: np.ndarray,
     rng: np.random.Generator,
     photo_rate: float = 0.70,
+    has_photo_col: Optional[np.ndarray] = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generate synthetic vision signals calibrated to fraud labels.
 
     This mirrors the strategy used in train_meta_learner.py so the
-    evaluation and training distributions are consistent.
+    evaluation and training distributions are consistent — same Beta
+    parameters, same has_return_photo source.
 
     Returns (semantic_similarities, empty_box_flags, modality_confidences)
     """
@@ -68,7 +71,10 @@ def inject_synthetic_vision(
     semantic_similarities = np.full(n, 0.5)
     empty_box_flags = np.zeros(n, dtype=float)
 
-    has_photo = rng.random(n) < photo_rate
+    if has_photo_col is not None:
+        has_photo = has_photo_col.astype(bool)
+    else:
+        has_photo = rng.random(n) < photo_rate
     modality_confidences[has_photo] = 1.0
 
     is_fraud = labels.astype(bool)
@@ -77,16 +83,14 @@ def inject_synthetic_vision(
 
     if photo_legit.sum() > 0:
         semantic_similarities[photo_legit] = np.clip(
-            rng.beta(8, 2, size=photo_legit.sum()), 0.3, 1.0
+            rng.beta(5, 2, size=photo_legit.sum()), 0.35, 0.98
         )
 
     if photo_fraud.sum() > 0:
         n_fp = photo_fraud.sum()
         is_empty = rng.random(n_fp) < 0.40
-        semantic_similarities[photo_fraud] = np.where(
-            is_empty,
-            np.clip(rng.beta(2, 8, size=n_fp), 0.0, 0.6),
-            np.clip(rng.beta(3, 6, size=n_fp), 0.1, 0.75),
+        semantic_similarities[photo_fraud] = np.clip(
+            rng.beta(1.5, 9, size=n_fp), 0.0, 0.35
         )
         empty_box_flags[photo_fraud] = is_empty.astype(float)
 
@@ -220,7 +224,14 @@ def main():
     # Use a different seed from training (seed=99) so test vision signals
     # are NOT identical to training/val signals — more realistic evaluation.
     rng = np.random.default_rng(99)
-    sim_sims, empty_flags, mod_confs = inject_synthetic_vision(y_true, rng)
+    has_photo_col = (
+        np.asarray(test_df["has_return_photo"], dtype=bool)
+        if "has_return_photo" in test_df.columns
+        else None
+    )
+    sim_sims, empty_flags, mod_confs = inject_synthetic_vision(
+        y_true, rng, has_photo_col=has_photo_col
+    )
 
     print(f"\nSynthetic vision signals (test set, seed=99):")
     has_photo = mod_confs > 0

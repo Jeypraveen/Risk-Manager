@@ -72,11 +72,12 @@ def main():
     # to tabular-only.
     #
     # CALIBRATION NOTE: These distributions are calibrated to the MEASURED real
-    # DINOv2 similarity scores (using the new (cos+1)/2 mapping):
-    #   Genuine matches: 0.63–0.79 (mean ~0.72)
-    #   Fraud mismatches: 0.49–0.52 (mean ~0.51)
-    # Using Beta(7,3) for legit (mean ~0.70) and Beta(5,5)
-    # for fraud (mean ~0.50) matches the observed distribution.
+    # DINOv2 similarity scores produced by src.vision.similarity._rescale():
+    #   Genuine matches:  0.39-0.97 (mean ~0.73)
+    #   Fraud mismatches: 0.04-0.23 (mean ~0.14)
+    # Using Beta(5,2) for legit (mean ~0.71) and Beta(1.5,9) for fraud
+    # (mean ~0.14) matches the observed distribution. If SIM_BAND_LOW /
+    # SIM_BAND_HIGH in similarity.py change, these must be re-fitted.
     rng = np.random.default_rng(42)
     n = len(val_df)
 
@@ -88,7 +89,7 @@ def main():
     # instead of re-rolling a random coin. This column encodes realistic
     # fraud-subtype-correlated photo availability.
     if "has_return_photo" in val_df.columns:
-        has_photo_mask = val_df["has_return_photo"].values.astype(bool)
+        has_photo_mask = np.asarray(val_df["has_return_photo"], dtype=bool)
     else:
         # Fallback for older data files without this column
         has_photo_mask = rng.random(n) < 0.70
@@ -99,10 +100,10 @@ def main():
     photo_and_fraud = has_photo_mask & is_fraud
 
     # Legitimate returns with photo: similarity calibrated to measured DINOv2
-    # range (genuine matches cluster 0.63–0.79, mean ~0.72)
+    # range (genuine matches cluster 0.39-0.97, mean ~0.73)
     if photo_and_legit.sum() > 0:
         semantic_similarities[photo_and_legit] = np.clip(
-            rng.beta(7, 3, size=photo_and_legit.sum()), 0.55, 0.95
+            rng.beta(5, 2, size=photo_and_legit.sum()), 0.35, 0.98
         )
         empty_box_flags[photo_and_legit] = 0
 
@@ -111,7 +112,7 @@ def main():
         n_fraud_photo = photo_and_fraud.sum()
         # 40% of fraud photos are empty-box (matching FRAUD_SUBTYPE_DIST)
         is_empty_sub = rng.random(n_fraud_photo) < 0.40
-        fraud_sims = np.clip(rng.beta(5, 5, size=n_fraud_photo), 0.35, 0.65)
+        fraud_sims = np.clip(rng.beta(1.5, 9, size=n_fraud_photo), 0.0, 0.35)
         semantic_similarities[photo_and_fraud] = fraud_sims
         empty_box_flags[photo_and_fraud] = is_empty_sub.astype(float)
 
@@ -121,8 +122,6 @@ def main():
     if photo_and_fraud.sum() > 0:
         print(f"  Fraud photo — mean similarity: {semantic_similarities[photo_and_fraud].mean():.3f}, "
               f"  empty_box rate: {empty_box_flags[photo_and_fraud].mean():.1%}")
-
-    # (labels already defined above, before vision signal injection)
 
     # ── Train meta-learner ──
     print("\nTraining meta-learner (logistic regression on 4 features)...")
@@ -150,7 +149,6 @@ def main():
 
     # Verify vision signals have effect: if we flip modality_confidence to 1.0
     # and set similarity low, trust score should drop for the same tabular score
-    test_tabular = np.array([0.7])
     no_vision = ml.predict(0.7, modality_confidence=0.0)
     with_good_vision = ml.predict(0.7, semantic_similarity=0.9, modality_confidence=1.0, empty_box_flag=0)
     with_bad_vision = ml.predict(0.7, semantic_similarity=0.2, modality_confidence=1.0, empty_box_flag=1)

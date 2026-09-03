@@ -99,30 +99,30 @@
     "manual_review_pct": 0.066
   },
   "fusion": {
-    "pr_auc": 0.8578504135414742,
-    "pr_auc_uplift_vs_tabular": 0.411277117787167,
+    "pr_auc": 0.8760800506306133,
+    "pr_auc_uplift_vs_tabular": 0.4295067548763062,
     "vision_signal_source": "synthetic (calibrated to fraud labels, seed=99)",
     "n_test_samples": 2000,
     "n_positive": 160,
     "fraud_rate": 0.08,
-    "photo_availability": 0.68,
+    "photo_availability": 0.693,
     "cost_optimization": {
-      "optimal_threshold": 0.8028643216080402,
-      "min_expected_cost": 117400.0,
-      "precision": 0.8299319727891157,
-      "recall": 0.7625,
-      "tp": 122,
-      "fp": 25,
-      "fn": 38
+      "optimal_threshold": 0.7782412060301508,
+      "min_expected_cost": 105500.0,
+      "precision": 0.8785714285714286,
+      "recall": 0.76875,
+      "tp": 123,
+      "fp": 17,
+      "fn": 37
     },
     "decision_distribution": {
       "total": 2000,
-      "auto_approve": 1324,
-      "auto_approve_pct": 0.662,
-      "nudge": 487,
-      "nudge_pct": 0.2435,
-      "manual_review": 189,
-      "manual_review_pct": 0.0945
+      "auto_approve": 1435,
+      "auto_approve_pct": 0.7175,
+      "nudge": 397,
+      "nudge_pct": 0.1985,
+      "manual_review": 168,
+      "manual_review_pct": 0.084
     },
     "note": "Vision signals are synthetic because real images + DINOv2 are not required for the demo. Fusion PR-AUC represents the upper-bound potential when real vision signals are available. Tabular-only PR-AUC is the primary production metric."
   }

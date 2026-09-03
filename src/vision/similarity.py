@@ -66,7 +66,7 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
             image = bg
         else:
             image = im.convert("RGB")
-            
+
         assert _processor is not None
         inputs = _processor(images=image, return_tensors="pt").to(_device)
 
@@ -83,6 +83,25 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
         return None
 
 
+# Empirically measured operating band of raw DINOv2 CLS cosine on this
+# project's staged image set, after mapping [-1,1] -> [0,1]:
+#   genuine matches   ~0.59 - 0.79
+#   mismatched items  ~0.47 - 0.53
+# Both sit above 0.45, so an unstretched score leaves mismatches at ~0.50 —
+# indistinguishable from the neutral no-vision default. Stretching this band
+# across [0,1] pushes mismatches well below 0.5 so a wrong-item photo becomes
+# active negative evidence rather than a no-op.
+SIM_BAND_LOW = 0.45
+SIM_BAND_HIGH = 0.80
+
+
+def _rescale(cosine: float) -> float:
+    """Map raw cosine [-1,1] into [0,1], stretched over the measured band."""
+    unit = (cosine + 1.0) / 2.0
+    stretched = (unit - SIM_BAND_LOW) / (SIM_BAND_HIGH - SIM_BAND_LOW)
+    return max(0.0, min(1.0, stretched))
+
+
 def compute_similarity(
     catalog_image_path: str,
     return_image_path: str,
@@ -97,7 +116,7 @@ def compute_similarity(
         return_embeddings: If True, also return the raw embeddings
 
     Returns:
-        float in [0, 1] — cosine similarity (higher = more similar)
+        float in [0, 1] — rescaled similarity (higher = more similar)
         None if either embedding failed
         If return_embeddings=True, returns (similarity, catalog_emb, return_emb)
     """
@@ -113,9 +132,7 @@ def compute_similarity(
     if norm == 0:
         return (None, catalog_emb, return_emb) if return_embeddings else None
 
-    similarity = float(dot / norm)
-    # Map cosine [-1, 1] to [0, 1] preserving ordering among mismatches
-    similarity = (similarity + 1.0) / 2.0
+    similarity = _rescale(float(dot / norm))
 
     if return_embeddings:
         return similarity, catalog_emb, return_emb
@@ -131,5 +148,4 @@ def compute_similarity_from_embeddings(
     norm = np.linalg.norm(catalog_embedding) * np.linalg.norm(return_embedding)
     if norm == 0:
         return 0.0
-    cos = float(dot / norm)
-    return (cos + 1.0) / 2.0
+    return _rescale(float(dot / norm))
