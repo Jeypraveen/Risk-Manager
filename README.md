@@ -84,7 +84,7 @@ The repository includes pre-staged sample images so the vision pipeline can be t
 
 In the demo UI, use the **Catalog Reference** and **Customer Return** upload boxes under "Vision Verification" to pair any catalog image with any return image and see the Trust Score respond in real time. Pairing a catalog image with its matching return photo (per the mapping above) demonstrates the auto-approve path; pairing it with a mismatched or substituted image demonstrates the manual-review path.
 
-> **Note on image sourcing:** Catalog reference photos were sourced from royalty-free stock imagery (Unsplash/Pexels, free for commercial use); return-photo staging (damaged items, empty boxes, substitutions) was created specifically for this project.
+> **Note on image sourcing:** Catalog reference photos and return-photo staging (damaged items, empty boxes, substitutions) are fully generic or AI-generated specifically for this project, containing no real-world brand trademarks or logos.
 
 ## 🧠 System Architecture
 

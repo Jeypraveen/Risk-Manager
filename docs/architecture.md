@@ -18,10 +18,10 @@ The system then uses a three-way decision router to decide whether to:
 *   **Process:** Evaluates historical and behavioral risk using a gradient-boosted tree.
 *   **Output:** Base tabular risk score.
 
-### 2. Vision Pipeline (DINOv2 + SAM2/Heuristic)
+### 2. Vision Pipeline (DINOv2 + Heuristics)
 *   **Input:** Customer return photo + Catalog reference photo.
 *   **DINOv2:** Extracts structural embeddings (ViT-S/14) and computes cosine similarity to detect **substitution fraud**.
-*   **SAM2 / Edge-Density Heuristic:** Analyzes the image to detect **empty-box fraud** by evaluating mask coverage or edge density.
+*   **Edge-Density Heuristic:** Analyzes the image to detect **empty-box fraud** by evaluating mask coverage or edge density.
 *   **Circuit Breaker:** Wraps the vision pipeline. If the model fails or times out, it gracefully degrades to a `modality_confidence` of `0.0` rather than crashing the system.
 
 ### 3. Late-Fusion Meta-Learner (Logistic Regression)

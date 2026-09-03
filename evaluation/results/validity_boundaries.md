@@ -24,7 +24,7 @@ The cost-optimal threshold (e.g., 0.803) was computed using a static estimate:
 **Boundary:** A real merchant's optimal threshold would shift drastically based on their specific average order value and lifetime customer value. The system is designed to emit a *ranking score*, allowing merchants to tune the `THRESHOLD_AUTO_APPROVE` and `THRESHOLD_MANUAL_REVIEW` parameters dynamically based on their specific economic realities.
 
 ## 3. Vision Pipeline Limitations
-The vision pipeline utilizes DINOv2 (ViT-S/14) for similarity and SAM2/Heuristics for empty-box detection.
+The vision pipeline utilizes DINOv2 (ViT-S/14) for similarity and Heuristics for empty-box detection.
 
 *   **Camera Quality:** Assumes reasonably well-lit photos. Real-world photos are often blurry, poorly framed, or taken in low light.
 *   **DINOv2 Background Sensitivity:** Empirical testing reveals that raw DINOv2 CLS-token similarity is highly sensitive to background/lighting differences between clean catalog photos and messy real-world return photos. This compresses the genuine-match similarity range (observed genuine matches float around 0.41 to 0.57, while mismatches score near 0.05). The model's baseline threshold was calibrated against a small 9-image demo set (placing the gap safely around 0.25–0.30), but this would require much broader real-data validation before production deployment.

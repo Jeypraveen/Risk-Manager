@@ -105,8 +105,6 @@ STORE_CREDIT_THRESHOLD_PENALTY = 0.10
 DINOV2_MODEL_NAME = "facebook/dinov2-small"
 DINOV2_EMBEDDING_DIM = 384  # ViT-S/14 output dimension
 
-# SAM2 — smallest checkpoint
-SAM2_CHECKPOINT = "facebook/sam2-hiera-tiny"
 
 # Empty-box detection: if the ratio of detected mask area to total image area
 # is below this threshold, flag as potentially empty.

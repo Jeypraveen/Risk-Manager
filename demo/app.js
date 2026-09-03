@@ -233,7 +233,7 @@ function updateUI(data) {
     featureBars.innerHTML = featureHtml;
 
     // 6. Audit details
-    auditIdVal.innerText = data.audit_id.split('-')[0] + '...';
+    auditIdVal.innerText = (data.audit_id || 'N/A').split('-')[0] + '...';
     returnIdVal.innerText = data.return_id;
     forcedByVal.innerText = data.decision.forced_by || 'None';
 }

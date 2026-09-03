@@ -12,9 +12,6 @@ torch>=2.1.0
 torchvision>=0.16.0
 transformers>=4.36.0
 
-# SAM2 — NOT on PyPI; install from GitHub:
-#   pip install git+https://github.com/facebookresearch/sam2.git
-# The vision pipeline falls back to the edge-density heuristic if SAM2 is unavailable.
 # segment-anything-2 is commented out; uncomment the GitHub install for production.
 
 # API

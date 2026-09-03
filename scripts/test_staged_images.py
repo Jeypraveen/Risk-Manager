@@ -14,8 +14,9 @@ pairs = [
     ('iphone.jpg', 'iphone_return.jpg', False, 'Genuine iPhone'),
     ('shoes_red.jpg', 'shoes_legitimate.jpg', False, 'Genuine shoes'),
     ('cetaphil.jpg', 'cetaphil_return.jpg', False, 'Genuine Cetaphil'),
-    ('catalog_sneaker_1787926829147.jpg', 'return_fraud_box_1787926845277.jpg', True, 'Empty/random box'),
+    ('shoes_red.jpg', 'return_fraud_box_1787926845277.jpg', True, 'Substitution shoes'),
     ('bag.png', 'bag_nudge_blurry.jpg', False, 'Blurry bag (legit)'),
+    ('iphone_17promax.jpg', 'iphone_return_legitimate.jpg', False, 'Genuine iPhone 17'),
 ]
 
 def run():

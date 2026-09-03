@@ -45,6 +45,7 @@ from src.config import (
     AUDIT_TABLE_NAME,
     MODELS_DIR,
     MAX_REPHOTO_REQUESTS,
+    ITEM_CATEGORIES,
 )
 from src.tabular.predict import TabularScorer
 from src.fusion.decision import make_decision, Decision
@@ -231,9 +232,8 @@ async def score_return(
     if prior_store_credit_count < 0:
         raise HTTPException(status_code=400, detail="prior_store_credit_count cannot be negative")
         
-    valid_categories = {"electronics", "fashion", "home", "beauty", "books", "sports"}
-    if item_category not in valid_categories:
-        raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(valid_categories)}")
+    if item_category not in ITEM_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(ITEM_CATEGORIES)}")
 
     # ── Step 1: Tabular scoring ──
     # Failure here raises HTTPException; nothing is logged (model not ready is
@@ -434,9 +434,9 @@ async def score_return(
         },
         "failure": {
             "occurred": True,
-            "type": vision_failure.failure_type.value if vision_failure else None,
-            "message": vision_failure.message if vision_failure else None,
-        } if vision_failure else None,
+            "type": vision_failure.failure_type.value,
+            "message": vision_failure.message,
+        } if vision_failure and vision_failure.failure_type.value != "image_unavailable" else None,
         "feature_contributions": {
             k: round(v, 4) for k, v in sorted(
                 feature_contributions.items(), key=lambda x: x[1], reverse=True
