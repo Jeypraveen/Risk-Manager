@@ -251,9 +251,7 @@ async def score_return(
         raise HTTPException(status_code=400, detail="prior_return_approval_rate must be between 0.0 and 1.0")
     if address_order_distance_km < 0:
         raise HTTPException(status_code=400, detail="address_order_distance_km cannot be negative")
-    if prior_store_credit_count < 0:
-        raise HTTPException(status_code=400, detail="prior_store_credit_count cannot be negative")
-        
+
     if item_category not in ITEM_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(ITEM_CATEGORIES)}")
 

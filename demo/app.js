@@ -88,11 +88,6 @@ function randomizeData() {
         document.getElementById("delivery_to_return_hours").value = Math.floor(Math.random() * 200 + 48); // Normal
     }
 
-    // Randomize store credits (fraud profiles more likely to have used store credits)
-    document.getElementById("prior_store_credit_count").value = isFraudulent
-        ? Math.floor(Math.random() * 4 + 1)
-        : Math.floor(Math.random() * 2);
-
     showToast("Loaded random profile");
 }
 
@@ -105,7 +100,7 @@ async function scoreRequest() {
         // Force the selects to be properly recorded as ints
         formData.set("is_cod", document.getElementById("is_cod").value);
         formData.set("item_category", document.getElementById("item_category").value);
-        formData.set("prior_store_credit_count", document.getElementById("prior_store_credit_count").value);
+
 
         // Append the uploaded files to formData
         const catalogInput = document.getElementById("catalog_image");
