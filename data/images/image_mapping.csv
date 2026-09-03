@@ -10,3 +10,4 @@ DEMO-BAG-NUDGE,data/images/catalog/bag.png,data/images/returns/bag_nudge_blurry.
 DEMO-SHOES-RED-FRAUD,data/images/catalog/shoes_red.jpg,data/images/returns/return_fraud_box_1787926845277.jpg,substitution,fashion
 
 DEMO-CETA-LEGIT,data/images/catalog/cetaphil.jpg,data/images/returns/cetaphil_return.jpg,none,beauty
+DEMO-IPHONE17-LEGIT,data/images/catalog/iphone_17promax.jpg,data/images/returns/iphone_return_legitimate.jpg,none,electronics
