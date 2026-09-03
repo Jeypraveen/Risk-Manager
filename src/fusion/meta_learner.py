@@ -8,6 +8,10 @@ Late fusion was chosen deliberately: images are often missing or
 low-quality, and late fusion lets any one modality degrade without
 collapsing the whole system. The modality_confidence input lets the
 meta-learner explicitly weight vision signals based on their availability.
+
+Note on coefficients: `modality_confidence` typically gets a positive
+coefficient during training. This just means the mere presence of visual
+evidence slightly increases baseline trust, before interacting with similarity.
 """
 
 import json
