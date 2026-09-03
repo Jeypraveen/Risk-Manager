@@ -80,19 +80,40 @@ class TabularScorer:
 
     def get_feature_contributions(self, request: dict) -> dict[str, float]:
         """
-        Get per-feature contribution using native LightGBM feature importances.
+        Get per-instance feature contributions using LightGBM's built-in
+        pred_contrib (leaf-based SHAP values).
+
+        Unlike global feature_importances_, this returns values specific
+        to THIS particular return request — different inputs produce
+        different contribution rankings.
 
         Returns:
-            Dict mapping feature name to its normalized importance weight.
+            Dict mapping feature name to its absolute contribution weight
+            for this specific request (normalized to sum to 1.0).
         """
         df = pd.DataFrame([request])
         df_prepared, _ = prepare_features(df, category_medians=self.category_medians)
         df_prepared = df_prepared.reindex(columns=self.feature_columns, fill_value=0)
 
-        # Use native LightGBM feature importances (fast and synchronous-safe)
-        importances = self.model.feature_importances_
-        total = importances.sum() + 1e-8
+        # pred_contrib=True returns per-leaf SHAP values: shape (1, n_features + 1)
+        # Last column is the base value (bias); we drop it.
+        contribs = self.model.predict_proba(
+            df_prepared.values, pred_contrib=True
+        )
+        # LightGBM returns contributions for each class; take class 1 (fraud)
+        # Shape: (1, n_features + 1) for binary classification
+        if contribs.ndim == 3:
+            # Shape (n_samples, n_classes, n_features+1) — take class 1
+            row_contribs = contribs[0, 1, :-1]
+        else:
+            # Shape (n_samples, n_features+1)
+            row_contribs = contribs[0, :-1]
+
+        # Use absolute values for ranking (direction doesn't matter for "top features")
+        abs_contribs = np.abs(row_contribs)
+        total = abs_contribs.sum() + 1e-8
         return {
-            name: float(imp / total)
-            for name, imp in zip(self.feature_columns, importances)
+            name: float(abs_c / total)
+            for name, abs_c in zip(self.feature_columns, abs_contribs)
         }
+
