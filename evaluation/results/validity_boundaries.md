@@ -17,7 +17,7 @@ The test set metrics (PR-AUC, cost-optimal thresholds) are derived from a **synt
 > **Fusion PR-AUC Evaluation:** The reported Fusion PR-AUC is evaluated using **simulated** vision scores that are statistically representative of the pipeline's expected behavior. It does **not** reflect a full end-to-end evaluation of the actual DINOv2 pipeline on real images across the 2,000 tabular test rows. The actual DINOv2 pipeline was validated separately and qualitatively on a smaller staged image dataset (see vision pipeline test results).
 
 ## 2. Threshold Recalibration
-The cost-optimal threshold (e.g., 0.803) was computed using a static estimate:
+The cost-optimal threshold (e.g., 0.778) was computed using a static estimate:
 *   $C_{FP}$ (False Positive Cost): ₹1,200 (customer churn risk + review labor)
 *   $C_{FN}$ (False Negative Cost): ₹2,300 (item value + shipping losses)
 
