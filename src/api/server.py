@@ -248,6 +248,8 @@ async def score_return(
         raise HTTPException(status_code=400, detail="order_value cannot be negative")
     if account_age_days < 0:
         raise HTTPException(status_code=400, detail="account_age_days cannot be negative")
+    if account_age_days > 36500:
+        raise HTTPException(status_code=400, detail="account_age_days exceeds maximum (36500 = 100 years)")
     if prior_returns_count < 0:
         raise HTTPException(status_code=400, detail="prior_returns_count cannot be negative")
     if return_velocity_7d < 0:
@@ -267,6 +269,24 @@ async def score_return(
 
     if item_category not in ITEM_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(ITEM_CATEGORIES)}")
+
+    ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jpg"}
+    MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+    async def _validate_image(img: Optional[UploadFile], name: str):
+        if not img or not img.filename:
+            return
+        if img.content_type not in ALLOWED_IMAGE_TYPES:
+            raise HTTPException(status_code=400, detail=f"{name} must be a valid image (JPEG/PNG/WEBP)")
+        
+        # Read slightly more than max size to detect oversize efficiently
+        content = await img.read(MAX_IMAGE_SIZE + 1)
+        if len(content) > MAX_IMAGE_SIZE:
+            raise HTTPException(status_code=400, detail=f"{name} file size exceeds 10MB limit")
+        await img.seek(0)
+
+    await _validate_image(catalog_image, "catalog_image")
+    await _validate_image(return_image, "return_image")
 
     # ── Step 1: Tabular scoring ──
     # Failure here raises HTTPException; nothing is logged (model not ready is

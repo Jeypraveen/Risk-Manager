@@ -22,26 +22,30 @@ logger = logging.getLogger(__name__)
 _model = None
 _processor = None
 _device = None
+_model_lock = threading.Lock()
 
 
 def _load_model():
-    """Lazy-load DINOv2 model on first use."""
     global _model, _processor, _device
 
     if _model is not None:
         return
 
-    import torch
-    from transformers import AutoImageProcessor, AutoModel
+    with _model_lock:
+        if _model is not None:
+            return
 
-    from src.config import DINOV2_MODEL_NAME
+        import torch
+        from transformers import AutoImageProcessor, AutoModel
 
-    logger.info(f"Loading DINOv2 model: {DINOV2_MODEL_NAME}")
-    _device = "cuda" if torch.cuda.is_available() else "cpu"
-    _processor = AutoImageProcessor.from_pretrained(DINOV2_MODEL_NAME)
-    _model = AutoModel.from_pretrained(DINOV2_MODEL_NAME).to(_device)
-    _model.eval()
-    logger.info(f"DINOv2 loaded on {_device}")
+        from src.config import DINOV2_MODEL_NAME
+
+        logger.info(f"Loading DINOv2 model: {DINOV2_MODEL_NAME}")
+        _device = "cuda" if torch.cuda.is_available() else "cpu"
+        _processor = AutoImageProcessor.from_pretrained(DINOV2_MODEL_NAME)
+        _model = AutoModel.from_pretrained(DINOV2_MODEL_NAME).to(_device)
+        _model.eval()
+        logger.info(f"DINOv2 loaded on {_device}")
 
 
 def extract_embedding(image_path: str) -> Optional[np.ndarray]:
