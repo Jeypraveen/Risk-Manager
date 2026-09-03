@@ -94,7 +94,7 @@ C_FN = 2300.0  # ₹2,300
 THRESHOLD_AUTO_APPROVE = 0.75
 THRESHOLD_MANUAL_REVIEW = 0.30
 
-# When a prior store-credit recipient returns again, we lower the
+# When a prior store-credit recipient returns again, we raise the
 # auto-approve threshold by this delta — making auto-approval harder.
 STORE_CREDIT_THRESHOLD_PENALTY = 0.10
 
@@ -110,7 +110,7 @@ SAM2_CHECKPOINT = "facebook/sam2-hiera-tiny"
 
 # Empty-box detection: if the ratio of detected mask area to total image area
 # is below this threshold, flag as potentially empty.
-EMPTY_BOX_MASK_AREA_THRESHOLD = 0.05  # 5% of image area
+EMPTY_BOX_MASK_AREA_THRESHOLD = 0.10  # 10% of image area
 
 # ──────────────────────────────────────────────
 # Nudge & Re-Photo Logic

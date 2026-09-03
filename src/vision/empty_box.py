@@ -67,6 +67,12 @@ def detect_empty_box_heuristic(image_path: str) -> tuple[bool, float]:
         # Combined "content score" — higher means more stuff in the image
         coverage_ratio = (edge_density * 0.6 + color_diversity * 0.4)
 
+        # If the image is extremely dark/blurry (like a bad photo in a dark room), 
+        # it lacks edges/colors naturally. Don't flag as empty box.
+        brightness = np.mean(gray)
+        if brightness < 40:
+            return False, float(coverage_ratio)
+
         is_empty = coverage_ratio < EMPTY_BOX_MASK_AREA_THRESHOLD
         return bool(is_empty), float(coverage_ratio)
 
