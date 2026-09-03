@@ -69,10 +69,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS for local development (restrict in production)
+# CORS — allow all origins for demo (restrict in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -141,7 +141,8 @@ def _get_rephoto_count_from_db(return_id: str) -> int:
 def _get_store_credit_count_from_db(return_id: str) -> int:
     """
     Query the audit DB for the number of OFFER_STORE_CREDIT nudges already issued
-    for this return_id. This replaces client-supplied prior_store_credit_count.
+    for this return_id. This counts per-return escalation (how many times this
+    specific return was offered store credit), not per-account.
     """
     try:
         with sqlite3.connect(str(AUDIT_DB_PATH)) as conn:
@@ -160,6 +161,12 @@ def _get_store_credit_count_from_db(return_id: str) -> int:
 
 
 # ── Endpoints ──
+
+@app.get("/", include_in_schema=False)
+async def root_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/demo/index.html")
+
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
@@ -251,6 +258,12 @@ async def score_return(
         raise HTTPException(status_code=400, detail="prior_return_approval_rate must be between 0.0 and 1.0")
     if address_order_distance_km < 0:
         raise HTTPException(status_code=400, detail="address_order_distance_km cannot be negative")
+    if is_cod not in (0, 1):
+        raise HTTPException(status_code=400, detail="is_cod must be 0 or 1")
+    if order_value > 500_000:
+        raise HTTPException(status_code=400, detail="order_value exceeds maximum (500000)")
+    if delivery_to_return_hours > 8760:
+        raise HTTPException(status_code=400, detail="delivery_to_return_hours exceeds maximum (8760 = 1 year)")
 
     if item_category not in ITEM_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"item_category must be one of: {', '.join(ITEM_CATEGORIES)}")
@@ -389,12 +402,18 @@ async def score_return(
         and vision_failure.failure_type == FailureType.VISION_MODEL_FAILURE
     )
 
+    # Determine the actual failure type for threshold logic
+    actual_failure_type = None
+    if vision_failure is not None:
+        actual_failure_type = vision_failure.failure_type
+
     decision_result = make_decision(
         trust_score=trust_score,
         modality_confidence=modality_confidence,
         rephoto_count=rephoto_count,
         prior_store_credit_count=prior_store_credit_count,
         vision_failed=is_vision_failure,
+        failure_type=actual_failure_type,
     )
 
     # ── Step 6: Audit logging ──

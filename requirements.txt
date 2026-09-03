@@ -8,9 +8,9 @@ pandas>=2.0.0
 # If torch install fails or pulls CUDA wheels, install manually first with:
 #   pip install torch --index-url https://download.pytorch.org/whl/cpu
 Pillow>=10.0.0
-torch>=2.1.0
-torchvision>=0.16.0
-transformers>=4.36.0
+torch>=2.1.0,<3
+torchvision>=0.16.0,<1
+transformers>=4.36.0,<6
 
 # segment-anything-2 is commented out; uncomment the GitHub install for production.
 

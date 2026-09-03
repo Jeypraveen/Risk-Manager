@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = "/api";
 
 // DOM Elements
 const form = document.getElementById("request-form");
@@ -25,18 +25,20 @@ const simTimeout = document.getElementById("sim-timeout");
 const simCheckpoint = document.getElementById("sim-checkpoint");
 
 // Setup Simulation Listeners
-simTimeout.addEventListener("change", (e) => {
+simTimeout.addEventListener("change", async (e) => {
     if (e.target.checked) {
         simCheckpoint.checked = false;
+        await resetFailure();
         triggerFailure("timeout");
     } else {
         resetFailure();
     }
 });
 
-simCheckpoint.addEventListener("change", (e) => {
+simCheckpoint.addEventListener("change", async (e) => {
     if (e.target.checked) {
         simTimeout.checked = false;
+        await resetFailure();
         triggerFailure("checkpoint_mismatch");
     } else {
         resetFailure();
@@ -87,6 +89,13 @@ function randomizeData() {
         document.getElementById("is_cod").value = Math.random() < 0.5 ? "1" : "0";
         document.getElementById("delivery_to_return_hours").value = Math.floor(Math.random() * 200 + 48); // Normal
     }
+
+    // Randomize item category and distance (Issue #20)
+    const categories = ["electronics", "fashion", "home", "beauty", "books", "sports"];
+    document.getElementById("item_category").value = categories[Math.floor(Math.random() * categories.length)];
+    document.getElementById("address_order_distance_km").value = isFraudulent
+        ? (Math.random() * 200 + 50).toFixed(1)
+        : (Math.random() * 15 + 1).toFixed(1);
 
     showToast("Loaded random profile");
 }
@@ -186,7 +195,14 @@ function updateUI(data) {
         successSeg.style.width = `${100 - approvePct}%`;
     }
 
-    // 3. Vision Signals
+    // Update gauge labels dynamically from API thresholds
+    const gaugeLabels = document.querySelectorAll('.gauge-labels span');
+    if (gaugeLabels.length === 4) {
+        gaugeLabels[0].innerText = '0.0';
+        gaugeLabels[1].innerText = data.thresholds.effective_review.toFixed(2);
+        gaugeLabels[2].innerText = data.thresholds.effective_approve.toFixed(2);
+        gaugeLabels[3].innerText = '1.0';
+    }
     if (data.scores.semantic_similarity != null) {
         semanticVal.innerText = data.scores.semantic_similarity.toFixed(2);
     } else {

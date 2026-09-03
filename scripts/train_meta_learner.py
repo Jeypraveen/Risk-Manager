@@ -71,12 +71,12 @@ def main():
     # learns zero weights for vision features, making the fused model identical
     # to tabular-only.
     #
-    # Synthetic signal design (photo_availability_rate ≈ 70%):
-    #   - 70% of samples "have an image" (modality_confidence = 1.0)
-    #   - For legitimate returns with images: high similarity (Beta(8,2)) and not empty
-    #   - For fraud with empty_box subtype: low similarity + is_empty
-    #   - For fraud with substitution subtype: low similarity + not empty
-    #   - For fraud with no image: modality_confidence = 0.0
+    # CALIBRATION NOTE: These distributions are calibrated to the MEASURED real
+    # DINOv2 similarity scores (using the new (cos+1)/2 mapping):
+    #   Genuine matches: 0.63–0.79 (mean ~0.72)
+    #   Fraud mismatches: 0.49–0.52 (mean ~0.51)
+    # Using Beta(7,3) for legit (mean ~0.70) and Beta(5,5)
+    # for fraud (mean ~0.50) matches the observed distribution.
     rng = np.random.default_rng(42)
     n = len(val_df)
 
@@ -84,31 +84,34 @@ def main():
     semantic_similarities = np.full(n, 0.5)
     empty_box_flags = np.zeros(n, dtype=float)
 
-    # ~70% of samples have photos (consistent with PHOTO_AVAILABILITY_RATE in config)
-    has_photo_mask = rng.random(n) < 0.70
+    # Use the has_return_photo column from the generated data (Issue #9)
+    # instead of re-rolling a random coin. This column encodes realistic
+    # fraud-subtype-correlated photo availability.
+    if "has_return_photo" in val_df.columns:
+        has_photo_mask = val_df["has_return_photo"].values.astype(bool)
+    else:
+        # Fallback for older data files without this column
+        has_photo_mask = rng.random(n) < 0.70
     modality_confidences[has_photo_mask] = 1.0
 
     is_fraud = labels.astype(bool)
     photo_and_legit = has_photo_mask & ~is_fraud
     photo_and_fraud = has_photo_mask & is_fraud
 
-    # Legitimate returns with photo: high similarity (same item), box not empty
+    # Legitimate returns with photo: similarity calibrated to measured DINOv2
+    # range (genuine matches cluster 0.63–0.79, mean ~0.72)
     if photo_and_legit.sum() > 0:
         semantic_similarities[photo_and_legit] = np.clip(
-            rng.beta(8, 2, size=photo_and_legit.sum()), 0.3, 1.0
+            rng.beta(7, 3, size=photo_and_legit.sum()), 0.55, 0.95
         )
         empty_box_flags[photo_and_legit] = 0
 
-    # Fraud returns with photo: shifted similarity distribution, some empty boxes
+    # Fraud returns with photo: low similarity matching measured mismatch cluster
     if photo_and_fraud.sum() > 0:
         n_fraud_photo = photo_and_fraud.sum()
         # 40% of fraud photos are empty-box (matching FRAUD_SUBTYPE_DIST)
         is_empty_sub = rng.random(n_fraud_photo) < 0.40
-        fraud_sims = np.where(
-            is_empty_sub,
-            np.clip(rng.beta(2, 8, size=n_fraud_photo), 0.0, 0.6),   # empty box → low similarity
-            np.clip(rng.beta(3, 6, size=n_fraud_photo), 0.1, 0.75),   # substitution → medium-low
-        )
+        fraud_sims = np.clip(rng.beta(5, 5, size=n_fraud_photo), 0.35, 0.65)
         semantic_similarities[photo_and_fraud] = fraud_sims
         empty_box_flags[photo_and_fraud] = is_empty_sub.astype(float)
 

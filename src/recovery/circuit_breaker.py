@@ -62,6 +62,13 @@ class CircuitBreaker:
         self._simulate_timeout = False
         self._simulate_checkpoint_mismatch = False
         self._failure_log: list[FailureEvent] = []
+        self._MAX_FAILURE_LOG = 1000  # Ring buffer cap
+
+    def _log_failure(self, event: FailureEvent) -> None:
+        """Append a failure event, enforcing the ring buffer cap."""
+        self._failure_log.append(event)
+        if len(self._failure_log) > self._MAX_FAILURE_LOG:
+            self._failure_log = self._failure_log[-self._MAX_FAILURE_LOG:]
 
     # ── Simulation controls (for demo) ──
 
@@ -96,20 +103,20 @@ class CircuitBreaker:
                 message="Image upload timed out (simulated for demo)",
                 details="Simulated CDN/upload timeout — image service unreachable",
             )
-            self._failure_log.append(event)
+            self._log_failure(event)
             logger.warning(f"Circuit breaker triggered: {event.message}")
             return event
 
-        # Real check: no image provided
+        # Real check: no image provided (routine, not a failure)
         if image_path is None:
-            event = FailureEvent(
+            # Don't log to failure_log — this is expected operational behavior,
+            # not a system failure. Logging it inflates total_failures_recorded.
+            logger.info("Circuit breaker: No return image provided by customer")
+            return FailureEvent(
                 failure_type=FailureType.IMAGE_UNAVAILABLE,
                 message="No return image provided by customer",
                 details="Return request submitted without photo attachment",
             )
-            self._failure_log.append(event)
-            logger.info(f"Circuit breaker: {event.message}")
-            return event
 
         return None
 
@@ -137,7 +144,7 @@ class CircuitBreaker:
                 expected_dim=expected_dim,
                 actual_dim=768,
             )
-            self._failure_log.append(event)
+            self._log_failure(event)
             logger.error(f"Circuit breaker triggered: {event.message}")
             return event
 
@@ -147,7 +154,7 @@ class CircuitBreaker:
                 message="DINOv2 returned null embedding",
                 details="Model inference returned None — possible OOM or model corruption",
             )
-            self._failure_log.append(event)
+            self._log_failure(event)
             logger.error(f"Circuit breaker triggered: {event.message}")
             return event
 
@@ -165,7 +172,7 @@ class CircuitBreaker:
                 expected_dim=expected_dim,
                 actual_dim=actual_dim,
             )
-            self._failure_log.append(event)
+            self._log_failure(event)
             logger.error(f"Circuit breaker triggered: {event.message}")
             return event
 
@@ -192,7 +199,7 @@ class CircuitBreaker:
                 message=f"Vision pipeline exception: {type(e).__name__}: {str(e)}",
                 details=traceback.format_exc(),
             )
-            self._failure_log.append(event)
+            self._log_failure(event)
             logger.error(f"Circuit breaker caught exception: {event.message}")
             return None, event
 

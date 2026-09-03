@@ -14,7 +14,7 @@ Tests all workflows:
 
 Run against a live server:
     python -m uvicorn src.api.server:app --reload
-    python tests/test_e2e.py
+    python scripts/run_e2e.py
 """
 
 import sys

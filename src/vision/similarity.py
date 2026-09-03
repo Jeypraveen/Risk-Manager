@@ -114,8 +114,8 @@ def compute_similarity(
         return (None, catalog_emb, return_emb) if return_embeddings else None
 
     similarity = float(dot / norm)
-    # Clamp to [0, 1] — cosine can technically be negative
-    similarity = max(0.0, min(1.0, similarity))
+    # Map cosine [-1, 1] to [0, 1] preserving ordering among mismatches
+    similarity = (similarity + 1.0) / 2.0
 
     if return_embeddings:
         return similarity, catalog_emb, return_emb
@@ -131,4 +131,5 @@ def compute_similarity_from_embeddings(
     norm = np.linalg.norm(catalog_embedding) * np.linalg.norm(return_embedding)
     if norm == 0:
         return 0.0
-    return max(0.0, min(1.0, float(dot / norm)))
+    cos = float(dot / norm)
+    return (cos + 1.0) / 2.0

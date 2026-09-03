@@ -36,6 +36,9 @@ def detect_empty_box_heuristic(image_path: str) -> tuple[bool, float]:
     """
     try:
         image = Image.open(image_path).convert("RGB")
+        # Resize to bounded dimensions to fix resolution-dependent coverage
+        # ratio drift AND eliminate 9s+ processing on 12MP phone photos.
+        image.thumbnail((512, 512))
         img_array = np.array(image)
 
         # Convert to grayscale for edge detection
@@ -78,7 +81,9 @@ def detect_empty_box_heuristic(image_path: str) -> tuple[bool, float]:
 
     except Exception as e:
         logger.error(f"Heuristic empty-box detection failed: {e}")
-        return False, 0.5  # Default: assume not empty
+        # Re-raise so wrap_vision_call records a genuine VISION_MODEL_FAILURE
+        # instead of silently returning positive evidence for a corrupt image.
+        raise
 
 
 def detect_empty_box(image_path: str) -> tuple[bool, float]:

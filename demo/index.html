@@ -50,6 +50,11 @@
                     <h2>Request Data</h2>
                     <form id="request-form" class="tight-form">
                         <div class="form-grid">
+                            <div class="form-group" style="grid-column: 1 / -1">
+                                <label>Return ID</label>
+                                <input type="text" id="return_id" name="return_id" value="DEMO-001"
+                                    class="form-input" placeholder="Same ID = same return session">
+                            </div>
                             <div class="form-group">
                                 <label>Order Value (₹)</label>
                                 <input type="number" id="order_value" name="order_value" value="2500"
@@ -66,7 +71,7 @@
                                     class="form-input">
                             </div>
                             <div class="form-group">
-                                <label>Approval Rate (%)</label>
+                                <label>Approval Rate (0–1)</label>
                                 <input type="number" id="prior_return_approval_rate" name="prior_return_approval_rate"
                                     value="1.0" step="0.1" max="1" class="form-input">
                             </div>

@@ -12,7 +12,7 @@ pairs = [
     ('smartphone.png', 'substitution_fraud.png', True, 'Substituted smartphone'),
     ('headphones.png', 'headphones_legitimate.png', False, 'Genuine headphones'),
     ('iphone.jpg', 'iphone_return.jpg', False, 'Genuine iPhone'),
-    ('shoes_red.jpg', 'shoes_legitimate.jpg', False, 'Genuine shoes'),
+    ('shoes.png', 'shoes_legitimate.jpg', False, 'Genuine shoes'),
     ('cetaphil.jpg', 'cetaphil_return.jpg', False, 'Genuine Cetaphil'),
     ('shoes_red.jpg', 'return_fraud_box_1787926845277.jpg', True, 'Substitution shoes'),
     ('bag.png', 'bag_nudge_blurry.jpg', False, 'Blurry bag (legit)'),

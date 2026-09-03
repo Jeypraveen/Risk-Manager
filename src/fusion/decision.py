@@ -24,6 +24,7 @@ from src.config import (
     REPHOTO_MESSAGE,
     STORE_CREDIT_MESSAGE,
 )
+from src.recovery.circuit_breaker import FailureType
 
 
 class Decision(str, Enum):
@@ -58,6 +59,7 @@ def make_decision(
     rephoto_count: int = 0,
     prior_store_credit_count: int = 0,
     vision_failed: bool = False,
+    failure_type: Optional[FailureType] = None,
 ) -> DecisionResult:
     """
     Apply three-way decision logic to a return request.
@@ -66,10 +68,12 @@ def make_decision(
         trust_score: Fused Return Trust Score [0-1], higher = more trustworthy
         modality_confidence: Vision pipeline confidence [0-1]
         rephoto_count: Number of re-photo requests already made for this return
-        prior_store_credit_count: Number of prior returns where this account
-                                  accepted store credit (Modification #6)
-        vision_failed: Whether the vision pipeline experienced a failure
-                      (not just missing image — actual system failure)
+        prior_store_credit_count: Number of prior store-credit offers issued
+                                  for this return_id (Modification #6)
+        vision_failed: Whether the vision pipeline experienced an integrity
+                      failure (VISION_MODEL_FAILURE), not just missing image
+        failure_type: The specific FailureType, used to distinguish routine
+                     IMAGE_UNAVAILABLE from integrity VISION_MODEL_FAILURE
 
     Returns:
         DecisionResult with the decision, reasoning, and all context
@@ -83,10 +87,12 @@ def make_decision(
         approve_threshold += STORE_CREDIT_THRESHOLD_PENALTY
         approve_threshold = min(approve_threshold, 0.95)  # Cap at 0.95
 
-    # Modification #7: If vision gracefully degraded or image missing, raise the bar for auto-approval
-    if modality_confidence == 0.0:
+    # Modification #7: Only raise threshold for actual vision system failures
+    # (VISION_MODEL_FAILURE), NOT for routine no-photo (IMAGE_UNAVAILABLE).
+    # A customer who simply didn't attach a photo should not be penalized.
+    if failure_type == FailureType.VISION_MODEL_FAILURE:
         approve_threshold += VISION_FAILURE_THRESHOLD_RAISE
-        approve_threshold = min(approve_threshold, 1.0)  # Never auto-approve if this pushes it > 1.0
+        approve_threshold = min(approve_threshold, 1.0)
 
     # ── Forced decisions ──
 
