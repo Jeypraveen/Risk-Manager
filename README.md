@@ -19,7 +19,7 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 This project includes a fully functional FastAPI backend and a professional, single-page interactive dashboard.
 
 ### Option 1: Docker (Highly Recommended)
-Because the vision models are heavy (DINOv2) and require downloading weights, the Docker build automatically bakes the weights directly into the image. This guarantees the application will work perfectly even if the judging sandbox is completely disconnected from the internet.
+Because the vision models are heavy (DINOv2) and require downloading weights, the Docker build automatically bakes the weights directly into the image. Once built, this guarantees the application will work perfectly even if the judging sandbox is completely disconnected from the internet at runtime.
 
 1. Clone the repository and navigate into it:
    ```bash
@@ -104,7 +104,7 @@ Read the full details in [docs/architecture.md](docs/architecture.md).
 As per the prompt guidelines, we present honest metrics that consider false-positive costs. The system was evaluated on a held-out test set of 2,000 synthetic return requests with an 8% base fraud rate.
 
 *   **Test PR-AUC (Tabular):** `0.447`
-*   **Test PR-AUC (Fusion):** `0.876`
+*   **Test PR-AUC (Fusion):** `0.876`*
 *   **Cost-Optimal Threshold (Fusion):** `0.778` (Precision: `0.879`, Recall: `0.769`)
 
 > **Note on Fusion Evaluation:** Both the Fusion PR-AUC and the cost-optimal threshold/precision/recall above are evaluated using simulated vision scores that are statistically representative of the pipeline's expected behavior - they do not reflect a full end-to-end evaluation of the actual DINOv2 pipeline on real images across the full test set. The *real* vision pipeline (DINOv2 similarity, empty-box detection) was separately and directly verified on the project's staged image set - see the [Validity Boundaries](evaluation/results/validity_boundaries.md) document for the real, measured similarity scores and what they prove.

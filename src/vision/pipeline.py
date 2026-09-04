@@ -89,9 +89,9 @@ def run_vision_pipeline(
             sim_result, catalog_emb, return_emb = sim_output
             
             if sim_result is None:
-                # Embeddings failed to extract
+                # Embeddings extracted but zero norm (degenerate)
                 result.failure_type = FailureType.VISION_MODEL_FAILURE.value
-                result.failure_message = "Failed to extract embeddings"
+                result.failure_message = "Degenerate image embeddings (zero norm)"
             else:
                 # Check embedding dimensions via circuit breaker using the already extracted embedding
                 dim_failure = circuit_breaker.check_embedding_dimensions(return_emb)
