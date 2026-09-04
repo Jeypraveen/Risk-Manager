@@ -18,7 +18,7 @@ Built for **Razorpay AI Buildathon 2026, Track 2 (AI Risk Manager)**.
 
 This project includes a fully functional FastAPI backend and a professional, single-page interactive dashboard.
 
-### Option 1: Docker (Highly Recommended)
+### Option 1: Docker 
 Because the vision models are heavy (DINOv2) and require downloading weights, the Docker build automatically bakes the weights directly into the image. Once built, this guarantees the application will work perfectly even if the judging sandbox is completely disconnected from the internet at runtime.
 
 1. Clone the repository and navigate into it:
